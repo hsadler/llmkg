@@ -1,0 +1,5 @@
+
+TODO:
+- research kowledge graphs
+- poc calling ChatGPT from python
+- poc simple knowledge graph construction from ChatGPT queries
