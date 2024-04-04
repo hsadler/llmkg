@@ -1,4 +1,14 @@
 
+
+Knowledge Graphs
 https://en.wikipedia.org/wiki/Knowledge_graph
 https://en.wikipedia.org/wiki/Information_extraction
+
+ChatGPT
+https://platform.openai.com/docs/quickstart?context=python
+
+ChatGPT + Knowledge Graphs
 https://www.nature.com/articles/s41467-024-45563-x
+
+Retrieval-Augmented Generation (RAG)
+https://aws.amazon.com/what-is/retrieval-augmented-generation

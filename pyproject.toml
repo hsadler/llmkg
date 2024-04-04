@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "llmkg"
+version = "0.1.0"
+description = ""
+authors = ["hsadler <harrysadlermusic@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+openai = "^1.16.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
