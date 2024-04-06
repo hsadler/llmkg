@@ -8,6 +8,8 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.12"
 openai = "^1.16.2"
+streamlit = "^1.33.0"
+graphviz = "^0.20.3"
 
 
 [build-system]
