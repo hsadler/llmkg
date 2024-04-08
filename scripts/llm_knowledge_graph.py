@@ -15,10 +15,15 @@ st.set_page_config(
 )
 st.title("ChatGPT Knowledge Graph")
 initial_subject: str = st.text_input("Subject: ", "")
+mode: str = st.selectbox("Mode", ["child learning", "academic research", "casual learning"])
 subjects_breadth: int = 3
 subjects_depth: int = 4
 
-def fetch_related_subjects(input_subjects: list[str], num_related_subjects: int) -> dict[str, list[str]]:
+def fetch_related_subjects(
+    input_subjects: list[str], 
+    num_related_subjects: int, 
+    mode: str
+) -> dict[str, list[str]]:
     completion = openai_client.chat.completions.create(
         model="gpt-3.5-turbo",
         n=1,
@@ -36,7 +41,9 @@ def fetch_related_subjects(input_subjects: list[str], num_related_subjects: int)
                     An example reponse to input subjects ["computing", "cooking"] \
                     would be: \
                     {"computing": ["programming", "algorithms", "data structures"], \
-                    "cooking": ["baking", "grilling", "sous vide"]}
+                    "cooking": ["baking", "grilling", "sous vide"]} \
+                    \n
+                    Your response should be for the purpose of {mode}. \
                 '''
             },
             {
@@ -52,14 +59,14 @@ def fetch_related_subjects(input_subjects: list[str], num_related_subjects: int)
     related_subjects_lookup: dict[str, list[str]] = json.loads(completion_content)
     return related_subjects_lookup
 
-@st.cache_data()
-def construct_knowlege_graph_datastructure(
+def construct_knowlege_graph(
     input_subject: str, 
     subject_breadth: int, 
-    subject_depth: int
+    subject_depth: int,
+    mode: str
 ) -> dict[str, list[str]]:
     def explore_subject_nodes(subjects: list[str], breadth: int) -> dict[str, list[str]]:
-        related_subjects_lookup: dict[str, list[str]] = fetch_related_subjects(subjects, breadth)
+        related_subjects_lookup: dict[str, list[str]] = fetch_related_subjects(subjects, breadth, mode)
         return related_subjects_lookup
     knowledge_graph: dict[str, dict[str, bool]] = {}
     latest_recieved_subjects: set[str] = set()
@@ -78,9 +85,9 @@ def construct_knowlege_graph_datastructure(
     return knowledge_graph        
 
 # display knowledge graph if initial subject is provided
-if initial_subject:
-    knowledge_graph: dict[str, dict[str, bool]] = construct_knowlege_graph_datastructure(
-        initial_subject, subjects_breadth, subjects_depth
+if initial_subject and mode:
+    knowledge_graph: dict[str, dict[str, bool]] = construct_knowlege_graph(
+        initial_subject, subjects_breadth, subjects_depth, mode
     )
 
     graph = graphviz.Digraph(
