@@ -18,3 +18,7 @@ https://datavid.com/blog/knowledge-graph-visualization
 https://code.tutsplus.com/best-free-javascript-graph-visualization-libraries--cms-41710a
 https://plotly.com/python/network-graphs/
 https://docs.streamlit.io/develop/api-reference/charts/st.graphviz_chart
+https://blog.tomsawyer.com/knowledge-graph-visualization-tools
+
+Data tools
+https://neo4j.com/

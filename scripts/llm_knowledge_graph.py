@@ -14,6 +14,8 @@ st.set_page_config(
     layout="wide",
 )
 st.title("ChatGPT Knowledge Graph")
+
+# gather user inputs
 initial_subject: str = st.text_input("Subject: ", "")
 mode: str = st.selectbox("Mode", ["child learning", "academic research", "casual learning"])
 subjects_breadth: int = 3
@@ -22,7 +24,7 @@ subjects_depth: int = 4
 def fetch_related_subjects(
     input_subjects: list[str], 
     num_related_subjects: int, 
-    mode: str
+    mode: str,
 ) -> dict[str, list[str]]:
     completion = openai_client.chat.completions.create(
         model="gpt-3.5-turbo",
@@ -36,20 +38,20 @@ def fetch_related_subjects(
                     {"subject1": ["related_subject1", "related_subject2", "related_subject3"], \
                     "subject2": ["related_subject1", "related_subject2", "related_subject3"], \
                     "subject3": ["related_subject1", "related_subject2", "related_subject3"]} \
-                    \n
+                    \n \
                     Each subject or related subject should be a human readable string. \
                     An example reponse to input subjects ["computing", "cooking"] \
                     would be: \
                     {"computing": ["programming", "algorithms", "data structures"], \
                     "cooking": ["baking", "grilling", "sous vide"]} \
-                    \n
+                    \n \
                     Your response should be for the purpose of {mode}. \
                 '''
             },
             {
                 "role": "user", 
                 "content": f'''
-                    Give me {num_related_subjects} related subjects to each \
+                    Give me {num_related_subjects} related subjects for each \
                     subject in the list: {input_subjects} \
                 '''
             },
@@ -112,5 +114,3 @@ if initial_subject and mode:
         for related_subject in related_subjects:
             graph.edge(subject, related_subject)
     st.graphviz_chart(graph, use_container_width=True)
-
-
