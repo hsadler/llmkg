@@ -1,0 +1,9 @@
+
+KNOWLEDGE GRAPH DB
+- create a DB of subjects and related subjects
+- each related subject should have a relevance/distance score
+- start with a set of the most general subjects and keep following related 
+    subjects until you reach a specific depth
+- only explore each subject's related subjects once to avoid over exploration of 
+    any one subject
+- create a way to explore general subjects vs. specific subjects
