@@ -17,14 +17,12 @@ st.title("ChatGPT Knowledge Graph")
 
 # gather user inputs
 initial_subject: str = st.text_input("Subject: ", "")
-mode: str = st.selectbox("Mode", ["child learning", "academic research", "casual learning"])
-subjects_breadth: int = 3
+subjects_breadth: int = 4
 subjects_depth: int = 4
 
 def fetch_related_subjects(
     input_subjects: list[str], 
     num_related_subjects: int, 
-    mode: str,
 ) -> dict[str, list[str]]:
     completion = openai_client.chat.completions.create(
         model="gpt-3.5-turbo",
@@ -44,8 +42,6 @@ def fetch_related_subjects(
                     would be: \
                     {"computing": ["programming", "algorithms", "data structures"], \
                     "cooking": ["baking", "grilling", "sous vide"]} \
-                    \n \
-                    Your response should be for the purpose of {mode}. \
                 '''
             },
             {
@@ -58,17 +54,21 @@ def fetch_related_subjects(
         ]
     )
     completion_content: str = completion.choices[0].message.content
-    related_subjects_lookup: dict[str, list[str]] = json.loads(completion_content)
+    try:
+        related_subjects_lookup: dict[str, list[str]] = json.loads(completion_content)
+    except json.JSONDecodeError:
+        st.error("Invalid JSON response from the model.")
+        st.code(completion_content)
+        related_subjects_lookup = {}
     return related_subjects_lookup
 
 def construct_knowlege_graph(
     input_subject: str, 
     subject_breadth: int, 
     subject_depth: int,
-    mode: str
 ) -> dict[str, list[str]]:
     def explore_subject_nodes(subjects: list[str], breadth: int) -> dict[str, list[str]]:
-        related_subjects_lookup: dict[str, list[str]] = fetch_related_subjects(subjects, breadth, mode)
+        related_subjects_lookup: dict[str, list[str]] = fetch_related_subjects(subjects, breadth)
         return related_subjects_lookup
     knowledge_graph: dict[str, dict[str, bool]] = {}
     latest_recieved_subjects: set[str] = set()
@@ -87,9 +87,9 @@ def construct_knowlege_graph(
     return knowledge_graph        
 
 # display knowledge graph if initial subject is provided
-if initial_subject and mode:
+if initial_subject:
     knowledge_graph: dict[str, dict[str, bool]] = construct_knowlege_graph(
-        initial_subject, subjects_breadth, subjects_depth, mode
+        initial_subject, subjects_breadth, subjects_depth
     )
 
     graph = graphviz.Digraph(
