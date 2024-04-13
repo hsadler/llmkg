@@ -1,3 +1,3 @@
 
 up:
-	streamlit run scripts/llm_knowledge_graph.py
+	streamlit run streamlit/llm_knowledge_graph.py
