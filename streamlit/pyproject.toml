@@ -1,8 +1,9 @@
 [tool.poetry]
-name = "llmkg"
+name = "llmkg-streamlit"
 version = "0.1.0"
-description = ""
+description = "Streamlit POC clients for the LLMKG project"
 authors = ["hsadler <harrysadlermusic@gmail.com>"]
+package-mode = false
 readme = "README.md"
 
 [tool.poetry.dependencies]

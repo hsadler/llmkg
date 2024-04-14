@@ -4,6 +4,9 @@ import streamlit as st
 import graphviz
 from openai import OpenAI
 
+DEFAULT_SUBJECTS_BREADTH: int = 3
+DEFAULT_SUBJECTS_DEPTH: int = 3
+
 openai_client = OpenAI(
     api_key="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"
 )
@@ -17,8 +20,8 @@ st.title("ChatGPT Knowledge Graph")
 
 # gather user inputs
 initial_subject: str = st.text_input("Subject: ", "")
-subjects_breadth: int = 4
-subjects_depth: int = 4
+subjects_breadth: int = st.number_input("Subjects Breadth: ", value=DEFAULT_SUBJECTS_BREADTH)
+subjects_depth: int = st.number_input("Subjects Depth: ", value=DEFAULT_SUBJECTS_DEPTH)
 
 def fetch_related_subjects(
     input_subjects: list[str], 

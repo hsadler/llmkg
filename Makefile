@@ -1,3 +1,3 @@
 
-up:
-	streamlit run streamlit/poc_llm_knowledge_graph.py
+poc_up:
+	poetry run -C streamlit/ streamlit run streamlit/poc_llm_knowledge_graph.py
