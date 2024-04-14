@@ -2,4 +2,20 @@
 TODO:
 X poc calling ChatGPT from python
 X poc simple knowledge graph construction from ChatGPT queries
-- research knowledge graphs
+- build knowledge graph subject/related_subjects CRUD API
+- build script to populate knowledge graph DB from ChatGPT queries
+- DB queries:
+    - get a portion of the knowledge graph given a certain subject
+    - calculate n most general subjects based on the amount of related subject 
+        pointers
+- build a knowledge graph visualization tool that allows for:
+    - searching for a subject
+    - viewing a subject within a subject cluster
+    - zooming in on a subject cluster and viewing its related niche subjects
+    - zooming out to view progressively more general subjects
+
+RESEARCH
+- research knowledge graph data structures
+- research knowledge graph DB storage
+- research knowledge personalization
+- research knowledge graph data visualization
