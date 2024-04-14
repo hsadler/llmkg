@@ -3,6 +3,13 @@ PITCH
 People can learn more about a subject by exploring related subjects in a
 knowledge graph. Personalized knowledge graphs can be created via LLMs.
 
+STRATEGY
+- prove that LLMs can be used to create quality knowledge graphs
+- prove that the produced knowledge graphs have educational value with user 
+    testing
+- prove that the knowledge graphs can be personalized
+- release a beta version of a product for public testing
+
 KNOWLEDGE GRAPH DB
 - create a DB of subjects and related subjects
 - each related subject should have a relevance/distance score
