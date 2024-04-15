@@ -9,6 +9,8 @@ class StatusOutput(BaseModel):
     status: str = Field(description="Status of the service.")
 
 
+## Iteams EXAMPLES
+
 class ItemIn(BaseModel):
     name: str = Field(max_length=50, description="Item name.", example="foo")
     price: float = Field(gt=0, description="Item price.", example="3.14")
@@ -38,3 +40,48 @@ class ItemOutput(BaseModel):
 class ItemsOutput(BaseModel):
     data: list[Item] = Field(description="Items fetched.")
     meta: dict[str, Any] = Field(description="Metadata about the items.")
+
+
+## Subjects
+
+class Subject(BaseModel):
+    id: int = Field(gt=0, description="Item id. Autoincremented.", example=1)
+    uuid: UUID = Field(
+        description="Item uuid4 identifier.", example="123e4567-e89b-12d3-a456-426614174000"
+    )
+    name: str = Field(max_length=50, description="Subject name.", example="cooking")
+
+
+class SubjectCreate(BaseModel):
+    name: str = Field(max_length=50, description="Subject name.", example="cooking")
+
+
+class SubjectOutput(BaseModel):
+    data: Subject = Field(description="Subject created.")
+    meta: dict[str, Any] = Field(description="Metadata about the subject.")
+
+
+class SubjectListOutput(BaseModel):
+    data: list[Subject] = Field(description="Subjects fetched.")
+    meta: dict[str, Any] = Field(description="Metadata about the subjects.")
+
+
+class RelatedSubjectsCreate(BaseModel):
+    subject: str = Field(description="Subject name.", example="cooking")
+    related_subjects: list[str] = Field(description="Related subject names.", example=["baking"])
+
+
+## Knowledge Graph
+
+class KnowledgeGraphNode(BaseModel):
+    subject: str = Field(description="Node subject.")
+    related_subjects: list[str] = Field(description="Related node subjects.")
+
+
+class KnowledgeGraph(BaseModel):
+    nodes: list[KnowledgeGraphNode] = Field(description="Nodes in the knowledge graph.")
+
+
+class KnowledgeGraphOutput(BaseModel):
+    data: KnowledgeGraph = Field(description="Knowledge graph.")
+    meta: dict[str, Any] = Field(description="Metadata about the knowledge graph.")

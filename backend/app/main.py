@@ -6,8 +6,10 @@ from prometheus_fastapi_instrumentator import Instrumentator
 from app import models
 from app.database import get_database
 from app.log import setup_logging
-from app.routers.examples import router as examples_router
-from app.routers.items import router as items_router
+# from app.routers.examples import router as examples_router
+# from app.routers.items import router as items_router
+from app.routers.subjects import router as subjects_router
+from app.routers.knowledge_graph import router as knowledge_graph_router
 from app.settings import settings
 
 setup_logging()
@@ -40,8 +42,10 @@ async def status() -> models.StatusOutput:
     return models.StatusOutput(status="ok")
 
 
-app.include_router(items_router)
-app.include_router(examples_router)
+# app.include_router(items_router)
+# app.include_router(examples_router)
+app.include_router(subjects_router)
+app.include_router(knowledge_graph_router)
 
 
 Instrumentator().instrument(app).expose(app)
