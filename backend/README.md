@@ -8,9 +8,7 @@
 - Basic server logging setup
 - Swagger docs for all exposed server endpoints
 - API tests via pytest and FastAPI test client
-- Loadtesting basic example via locust
 - Local dev environment with docker-compose
-- Automatic linting and pytest running with pre-commit
 
 ## Getting started
 
@@ -129,29 +127,4 @@ docker compose exec app alembic upgrade head
 (optional) Roll-back your migration
 ```sh
 docker compose exec app alembic downgrade -1
-```
-
-## Running loadtests
-
-Locust is used for loadtesting. The python file for managing tests is [here](./locustfile.py).
-
-Run a loadtest method or set of methods by tag
-```sh
-poetry run locust -f locustfile.py --headless --tag=<my_tag> \
---users=<num_users> --spawn-rate=<spawn_rate> --run-time=<run_duration> \
---host=http://localhost:8000
-```
-
-Run all loadtests
-```sh
-make loadtest
-```
-
-## Other dev commands
-
-See the [Makefile](./Makefile)
-
-If you get isort errors, run this command alone to fix
-```sh
-poetry run isort .
 ```
