@@ -1,5 +1,4 @@
 import logging
-import uuid
 
 import asyncpg
 from fastapi import APIRouter, Depends, HTTPException, Response
@@ -56,26 +55,3 @@ async def create_related_subjects(
     )
     # STUB: mock data response
     return Response(status_code=201)
-
-
-@router.get(
-    "/general",
-    description="Fetch general subjects.",
-    responses={
-        "404": {"description": "Resource not found"},
-    },
-)
-async def get_general_subjects(db: Database = Depends(get_database)) -> models.SubjectListOutput:
-    logger.info("Fetching general subjects")
-    # STUB: mock data response
-    return models.SubjectListOutput(
-        data=[
-            models.Subject(
-                id=1, uuid=uuid.UUID("123e4567-e89b-12d3-a456-426614174000"), name="cooking"
-            ),
-            models.Subject(
-                id=2, uuid=uuid.UUID("123e4567-e89b-12d3-a456-426614174001"), name="baking"
-            ),
-        ],
-        meta={},
-    )
