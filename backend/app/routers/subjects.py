@@ -1,14 +1,12 @@
 import logging
 import uuid
 
-# import asyncpg
+import asyncpg
 from fastapi import APIRouter, Depends, HTTPException, Response
 
 from app import models
 from app.database import Database, get_database
 from app.repos import subjects as subjects_repo
-
-# from app.repos import items as items_repo
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +30,8 @@ async def create_subject(
         subject: models.Subject = await subjects_repo.create_subject(db, input_subject)
         logger.info("Subject created", extra={"subject": dict(subject)})
         return models.SubjectOutput(data=subject, meta={})
+    except asyncpg.exceptions.UniqueViolationError:
+        raise HTTPException(status_code=409, detail="Resource already exists")
     except Exception as e:
         logger.exception(
             "Error creating subject", extra={"subject_name": input_subject.name, "error": e}
