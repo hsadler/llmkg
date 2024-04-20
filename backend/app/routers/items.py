@@ -10,6 +10,8 @@ from app.repos import items as items_repo
 logger = logging.getLogger(__name__)
 
 
+# EXAMPLE: items router
+
 router: APIRouter = APIRouter(prefix="/api/items", tags=["items"])
 
 

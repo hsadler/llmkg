@@ -1,10 +1,11 @@
 import logging
 
 # import asyncpg
-from fastapi import APIRouter, Depends, HTTPException, Path, Query
+from fastapi import APIRouter, Depends, Path
 
 from app import models
 from app.database import Database, get_database
+
 # from app.repos import items as items_repo
 
 logger = logging.getLogger(__name__)
@@ -25,9 +26,14 @@ async def get_item(
 ) -> models.KnowledgeGraphOutput:
     logger.info("Fetching subset of knowledge graph by subject", extra={"subject": subject})
     # STUB: mock data response
-    return models.KnowledgeGraphOutput(data=models.KnowledgeGraph(nodes=[
-        models.KnowledgeGraphNode(subject="foo", related_subjects=["bar"]),
-        models.KnowledgeGraphNode(subject="bar", related_subjects=["foo"]),
-        models.KnowledgeGraphNode(subject=subject, related_subjects=["foo", "bar"]),
-        models.KnowledgeGraphNode(subject="baz", related_subjects=["foo", "bar", subject]),
-    ]), meta={})
+    return models.KnowledgeGraphOutput(
+        data=models.KnowledgeGraph(
+            nodes=[
+                models.KnowledgeGraphNode(subject="foo", related_subjects=["bar"]),
+                models.KnowledgeGraphNode(subject="bar", related_subjects=["foo"]),
+                models.KnowledgeGraphNode(subject=subject, related_subjects=["foo", "bar"]),
+                models.KnowledgeGraphNode(subject="baz", related_subjects=["foo", "bar", subject]),
+            ]
+        ),
+        meta={},
+    )

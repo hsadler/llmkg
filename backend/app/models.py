@@ -9,7 +9,8 @@ class StatusOutput(BaseModel):
     status: str = Field(description="Status of the service.")
 
 
-## Iteams EXAMPLES
+# Items EXAMPLES
+
 
 class ItemIn(BaseModel):
     name: str = Field(max_length=50, description="Item name.", example="foo")
@@ -42,7 +43,8 @@ class ItemsOutput(BaseModel):
     meta: dict[str, Any] = Field(description="Metadata about the items.")
 
 
-## Subjects
+# Subjects
+
 
 class Subject(BaseModel):
     id: int = Field(gt=0, description="Item id. Autoincremented.", example=1)
@@ -71,7 +73,8 @@ class RelatedSubjectsCreate(BaseModel):
     related_subjects: list[str] = Field(description="Related subject names.", example=["baking"])
 
 
-## Knowledge Graph
+# Knowledge Graph
+
 
 class KnowledgeGraphNode(BaseModel):
     subject: str = Field(description="Node subject.")
