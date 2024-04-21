@@ -26,7 +26,7 @@ async def create_subject(
 ) -> models.SubjectOutput:
     logger.info("Creating new subject", extra={"subject": input_subject})
     try:
-        subject: models.Subject = await subjects_repo.create_subject(db, input_subject)
+        subject: models.Subject = await subjects_repo.create_subject(db, input_subject.name)
         logger.info("Subject created", extra={"subject": dict(subject)})
         return models.SubjectOutput(data=subject, meta={})
     except asyncpg.exceptions.UniqueViolationError:
@@ -51,7 +51,21 @@ async def create_related_subjects(
 ) -> Response:
     logger.info(
         "Creating related subjects relationships",
-        extra={"subject": input.subject, "related_subjects": input.related_subjects},
+        extra={
+            "subject_name": input.subject_name,
+            "related_subjects_names": input.related_subject_names,
+        },
     )
-    # STUB: mock data response
+    # Create all subjects based on subject and related_subjects
+    subject: models.Subject = await subjects_repo.fetch_or_create_subject_by_name(
+        db, input.subject_name
+    )
+    related_subjects: list[models.Subject] = []
+    for related_subject_name in input.related_subject_names:
+        related_subject: models.Subject = await subjects_repo.fetch_or_create_subject_by_name(
+            db, related_subject_name
+        )
+        related_subjects.append(related_subject)
+    # Create relationships between subject and related_subjects
+    await subjects_repo.create_subject_relations(db, subject, related_subjects)
     return Response(status_code=201)

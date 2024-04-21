@@ -69,16 +69,18 @@ class SubjectListOutput(BaseModel):
 
 
 class RelatedSubjectsCreate(BaseModel):
-    subject: str = Field(description="Subject name.", example="cooking")
-    related_subjects: list[str] = Field(description="Related subject names.", example=["baking"])
+    subject_name: str = Field(description="Subject name.", example="cooking")
+    related_subject_names: list[str] = Field(
+        description="Related subject names.", example=["baking"]
+    )
 
 
 # Knowledge Graph
 
 
 class KnowledgeGraphNode(BaseModel):
-    subject: str = Field(description="Node subject.")
-    related_subjects: list[str] = Field(description="Related node subjects.")
+    subject_name: str = Field(description="Node subject.")
+    related_subject_names: list[str] = Field(description="Related node subjects.")
 
 
 class KnowledgeGraph(BaseModel):

@@ -23,9 +23,9 @@ def upgrade() -> None:
             name VARCHAR(50) UNIQUE NOT NULL
         );
         CREATE TABLE subject_relation (
-            subject_uuid UUID NOT NULL,
-            related_subject_uuid UUID NOT NULL,
-            CONSTRAINT relation_unique UNIQUE (subject_uuid, related_subject_uuid)
+            subject_name VARCHAR(50) NOT NULL,
+            related_subject_name VARCHAR(50) NOT NULL,
+            CONSTRAINT relation_unique UNIQUE (subject_name, related_subject_name)
         );
     """
     )

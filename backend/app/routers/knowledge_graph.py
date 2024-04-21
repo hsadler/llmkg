@@ -23,19 +23,25 @@ router: APIRouter = APIRouter(prefix="/api/knowledge-graph", tags=["knowledge_gr
     },
 )
 async def get_knowledge_graph_local_graph(
-    subject: str = Path(min_length=1),
+    subject_name: str = Path(min_length=1),
     relationship_depth: int = Path(ge=0),
     db: Database = Depends(get_database),
 ) -> models.KnowledgeGraphOutput:
-    logger.info("Fetching subset of knowledge graph by subject", extra={"subject": subject})
+    logger.info(
+        "Fetching subset of knowledge graph by subject", extra={"subject_name": subject_name}
+    )
     # STUB: mock data response
     return models.KnowledgeGraphOutput(
         data=models.KnowledgeGraph(
             nodes=[
-                models.KnowledgeGraphNode(subject="foo", related_subjects=["bar"]),
-                models.KnowledgeGraphNode(subject="bar", related_subjects=["foo"]),
-                models.KnowledgeGraphNode(subject=subject, related_subjects=["foo", "bar"]),
-                models.KnowledgeGraphNode(subject="baz", related_subjects=["foo", "bar", subject]),
+                models.KnowledgeGraphNode(subject_name="foo", related_subject_names=["bar"]),
+                models.KnowledgeGraphNode(subject_name="bar", related_subject_names=["foo"]),
+                models.KnowledgeGraphNode(
+                    subject_name=subject_name, related_subject_names=["foo", "bar"]
+                ),
+                models.KnowledgeGraphNode(
+                    subject_name="baz", related_subject_names=["foo", "bar", subject_name]
+                ),
             ]
         ),
         meta={},
