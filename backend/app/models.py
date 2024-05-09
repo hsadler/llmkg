@@ -68,11 +68,21 @@ class SubjectListOutput(BaseModel):
     meta: dict[str, Any] = Field(description="Metadata about the subjects.")
 
 
+class RelatedSubjects(BaseModel):
+    subject: Subject = Field(description="Subject.")
+    related_subjects: list[Subject] = Field(description="Related subjects.")
+
+
 class RelatedSubjectsCreate(BaseModel):
     subject_name: str = Field(description="Subject name.", example="cooking")
     related_subject_names: list[str] = Field(
         description="Related subject names.", example=["baking"]
     )
+
+
+class RelatedSubjectsOutput(BaseModel):
+    data: RelatedSubjects = Field(description="Related subjects.")
+    meta: dict[str, Any] = Field(description="Metadata about the related subjects.")
 
 
 # Knowledge Graph

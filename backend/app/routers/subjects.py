@@ -38,6 +38,24 @@ async def create_subject(
         raise HTTPException(status_code=500)
 
 
+@router.get(
+    "/{subject_id}",
+    description="Get a subject by ID.",
+    responses={
+        "404": {"description": "Resource not found"},
+    },
+    status_code=200,
+)
+async def get_subject_by_id(
+    subject_id: int, db: Database = Depends(get_database)
+) -> models.SubjectOutput:
+    logger.info("Fetching subject by ID", extra={"subject_id": subject_id})
+    subjects: list[models.Subject] = await subjects_repo.fetch_subjects_by_ids(db, [subject_id])
+    if len(subjects) == 0:
+        raise HTTPException(status_code=404, detail="Resource not found")
+    return models.SubjectOutput(data=subjects[0], meta={})
+
+
 @router.post(
     "/related-subjects",
     description="Create related subjects relationships.",
@@ -69,3 +87,21 @@ async def create_related_subjects(
     # Create relationships between subject and related_subjects
     await subjects_repo.create_subject_relations(db, subject, related_subjects)
     return Response(status_code=201)
+
+
+@router.get(
+    "/related-subjects/{subject_name}",
+    description="Get related subjects by subject name.",
+    responses={
+        "404": {"description": "Resource not found"},
+    },
+    status_code=200,
+)
+async def get_related_subjects_by_subject_name(
+    subject_name: str, db: Database = Depends(get_database)
+) -> models.RelatedSubjectsOutput:
+    logger.info("Fetching related subjects by subject name", extra={"subject_name": subject_name})
+    related_subjects = await subjects_repo.fetch_subject_relations_by_subject_name(db, subject_name)
+    if related_subjects is None:
+        raise HTTPException(status_code=404, detail="Resource not found")
+    return models.RelatedSubjectsOutput(data=related_subjects, meta={})

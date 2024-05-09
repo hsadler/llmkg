@@ -89,3 +89,30 @@ async def create_subject_relations(
                     "Subject relationship could not be created because it already exists",
                     extra={"error": e},
                 )
+
+
+async def fetch_subject_relations_by_subject_name(
+    db: Database, subject_name: str
+) -> models.RelatedSubjects | None:
+    FETCH_COMMAND: str = """
+        SELECT * FROM subject_relation
+        JOIN subject
+        ON subject_relation.related_subject_name = subject.name
+        WHERE subject_relation.subject_name = $1
+    """
+    subject = await fetch_subject_by_name(db, subject_name)
+    if subject is None:
+        return None
+    async with db.pool.acquire() as con:
+        fetched_records = await con.fetch(FETCH_COMMAND, subject_name)
+        logger.info("Fetched subject relations", extra={"fetched_record": fetched_records})
+    logger.info("Fetched subject relations", extra={"fetched_record": fetched_records})
+    related_subjects: list[models.Subject] = []
+    for r in fetched_records:
+        related_subject = await fetch_subject_by_name(db, r["related_subject_name"])
+        if related_subject is not None:
+            related_subjects.append(related_subject)
+    return models.RelatedSubjects(
+        subject=subject,
+        related_subjects=related_subjects,
+    )
