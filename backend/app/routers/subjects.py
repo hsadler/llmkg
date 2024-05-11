@@ -1,7 +1,9 @@
 import logging
 
-import asyncpg
 from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
+from starlette import status
 
 from app import models
 from app.database import Database, get_database
@@ -15,36 +17,49 @@ router: APIRouter = APIRouter(prefix="/api/subjects", tags=["subjects"])
 
 @router.post(
     "/",
-    description="Create a new subject.",
+    description="Find or create a new subject.",
     responses={
-        "400": {"description": "Invalid input"},
+        status.HTTP_400_BAD_REQUEST: {"description": "Invalid input"},
+        status.HTTP_200_OK: {"description": "Subject found"},
+        status.HTTP_201_CREATED: {"description": "Subject created"},
     },
-    status_code=201,
 )
-async def create_subject(
+async def find_or_create_subject(
     input_subject: models.SubjectCreate, db: Database = Depends(get_database)
-) -> models.SubjectOutput:
-    logger.info("Creating new subject", extra={"subject": input_subject})
+) -> JSONResponse:
+    logger.info("Finding or creating new subject", extra={"subject": input_subject})
     try:
-        subject: models.Subject = await subjects_repo.create_subject(db, input_subject.name)
-        logger.info("Subject created", extra={"subject": dict(subject)})
-        return models.SubjectOutput(data=subject, meta={})
-    except asyncpg.exceptions.UniqueViolationError:
-        raise HTTPException(status_code=409, detail="Resource already exists")
+        subject = await subjects_repo.fetch_subject_by_name(db, input_subject.name)
+        if subject is not None:
+            # Existing subject found
+            logger.info("Subject found", extra={"subject": dict(subject)})
+            return JSONResponse(
+                content=jsonable_encoder(models.SubjectOutput(data=subject, meta={})),
+                status_code=status.HTTP_200_OK,
+            )
+        else:
+            # Create new subject
+            subject = await subjects_repo.create_subject(db, input_subject.name)
+            logger.info("Subject created", extra={"subject": dict(subject)})
+            return JSONResponse(
+                content=jsonable_encoder(models.SubjectOutput(data=subject, meta={})),
+                status_code=status.HTTP_201_CREATED,
+            )
     except Exception as e:
         logger.exception(
-            "Error creating subject", extra={"subject_name": input_subject.name, "error": e}
+            "Error finding or creating subject",
+            extra={"subject_name": input_subject.name, "error": e},
         )
-        raise HTTPException(status_code=500)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @router.get(
     "/{subject_id}",
     description="Get a subject by ID.",
     responses={
-        "404": {"description": "Resource not found"},
+        status.HTTP_404_NOT_FOUND: {"description": "Resource not found"},
     },
-    status_code=200,
+    status_code=status.HTTP_200_OK,
 )
 async def get_subject_by_id(
     subject_id: int, db: Database = Depends(get_database)
@@ -52,7 +67,7 @@ async def get_subject_by_id(
     logger.info("Fetching subject by ID", extra={"subject_id": subject_id})
     subjects: list[models.Subject] = await subjects_repo.fetch_subjects_by_ids(db, [subject_id])
     if len(subjects) == 0:
-        raise HTTPException(status_code=404, detail="Resource not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Resource not found")
     return models.SubjectOutput(data=subjects[0], meta={})
 
 
@@ -60,9 +75,9 @@ async def get_subject_by_id(
     "/related-subjects",
     description="Create related subjects relationships.",
     responses={
-        "400": {"description": "Invalid input"},
+        status.HTTP_400_BAD_REQUEST: {"description": "Invalid input"},
     },
-    status_code=201,
+    status_code=status.HTTP_201_CREATED,
 )
 async def create_related_subjects(
     input: models.RelatedSubjectsCreate, db: Database = Depends(get_database)
@@ -86,16 +101,16 @@ async def create_related_subjects(
         related_subjects.append(related_subject)
     # Create relationships between subject and related_subjects
     await subjects_repo.create_subject_relations(db, subject, related_subjects)
-    return Response(status_code=201)
+    return Response(status_code=status.HTTP_201_CREATED)
 
 
 @router.get(
     "/related-subjects/{subject_name}",
     description="Get related subjects by subject name.",
     responses={
-        "404": {"description": "Resource not found"},
+        status.HTTP_404_NOT_FOUND: {"description": "Resource not found"},
     },
-    status_code=200,
+    status_code=status.HTTP_200_OK,
 )
 async def get_related_subjects_by_subject_name(
     subject_name: str, db: Database = Depends(get_database)
@@ -103,5 +118,5 @@ async def get_related_subjects_by_subject_name(
     logger.info("Fetching related subjects by subject name", extra={"subject_name": subject_name})
     related_subjects = await subjects_repo.fetch_subject_relations_by_subject_name(db, subject_name)
     if related_subjects is None:
-        raise HTTPException(status_code=404, detail="Resource not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Resource not found")
     return models.RelatedSubjectsOutput(data=related_subjects, meta={})
