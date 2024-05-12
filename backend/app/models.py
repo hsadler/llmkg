@@ -43,48 +43,6 @@ class ItemsOutput(BaseModel):
     meta: dict[str, Any] = Field(description="Metadata about the items.")
 
 
-# Subjects
-
-
-class Subject(BaseModel):
-    id: int = Field(gt=0, description="Item id. Autoincremented.", example=1)
-    uuid: UUID = Field(
-        description="Item uuid4 identifier.", example="123e4567-e89b-12d3-a456-426614174000"
-    )
-    name: str = Field(max_length=50, description="Subject name.", example="cooking")
-
-
-class SubjectCreate(BaseModel):
-    name: str = Field(max_length=50, description="Subject name.", example="cooking")
-
-
-class SubjectOutput(BaseModel):
-    data: Subject = Field(description="Subject created.")
-    meta: dict[str, Any] = Field(description="Metadata about the subject.")
-
-
-class SubjectListOutput(BaseModel):
-    data: list[Subject] = Field(description="Subjects fetched.")
-    meta: dict[str, Any] = Field(description="Metadata about the subjects.")
-
-
-class RelatedSubjects(BaseModel):
-    subject: Subject = Field(description="Subject.")
-    related_subjects: list[Subject] = Field(description="Related subjects.")
-
-
-class RelatedSubjectsCreate(BaseModel):
-    subject_name: str = Field(description="Subject name.", example="cooking")
-    related_subject_names: list[str] = Field(
-        description="Related subject names.", example=["baking"]
-    )
-
-
-class RelatedSubjectsOutput(BaseModel):
-    data: RelatedSubjects = Field(description="Related subjects.")
-    meta: dict[str, Any] = Field(description="Metadata about the related subjects.")
-
-
 # Knowledge Graph
 
 

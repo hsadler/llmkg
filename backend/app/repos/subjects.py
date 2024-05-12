@@ -1,9 +1,10 @@
 import logging
 from typing import Union
+from uuid import UUID
 
 import asyncpg
+from pydantic import BaseModel, Field
 
-from app import models
 from app.database import Database
 
 logger = logging.getLogger(__name__)
@@ -12,7 +13,15 @@ logger = logging.getLogger(__name__)
 # Subjects
 
 
-async def create_subject(db: Database, subject_name: str) -> models.Subject:
+class SubjectRecord(BaseModel):
+    id: int = Field(gt=0, description="Item id. Autoincremented.", example=1)
+    uuid: UUID = Field(
+        description="Item uuid4 identifier.", example="123e4567-e89b-12d3-a456-426614174000"
+    )
+    name: str = Field(max_length=50, description="Subject name.", example="cooking")
+
+
+async def create_subject(db: Database, subject_name: str) -> SubjectRecord:
     INSERT_COMMAND: str = """
         INSERT INTO subject (name)
         VALUES ($1)
@@ -27,7 +36,7 @@ async def create_subject(db: Database, subject_name: str) -> models.Subject:
             subject_id = await con.fetchval(INSERT_COMMAND, subject_name)
             logger.info("Subject record inserted", extra={"subject_id": subject_id})
             subject_created_record = await con.fetchrow(FETCH_COMMAND, subject_id)
-        return models.Subject(**subject_created_record)
+        return SubjectRecord(**subject_created_record)
     except asyncpg.exceptions.UniqueViolationError as e:
         logger.info(
             "Subject record could not be created because it violated a unique constraint",
@@ -36,83 +45,71 @@ async def create_subject(db: Database, subject_name: str) -> models.Subject:
         raise e
 
 
-async def fetch_subject_by_name(db: Database, subject_name: str) -> Union[models.Subject, None]:
+async def fetch_subject_by_name(db: Database, subject_name: str) -> Union[SubjectRecord, None]:
     FETCH_COMMAND: str = """
         SELECT * FROM subject
         WHERE name = $1
     """
     async with db.pool.acquire() as con:
         subject_record = await con.fetchrow(FETCH_COMMAND, subject_name)
-    return models.Subject(**subject_record) if subject_record is not None else None
+    return SubjectRecord(**subject_record) if subject_record is not None else None
 
 
-async def fetch_or_create_subject_by_name(db: Database, subject_name: str) -> models.Subject:
+async def fetch_or_create_subject_by_name(db: Database, subject_name: str) -> SubjectRecord:
     subject = await fetch_subject_by_name(db, subject_name)
     if subject is None:
         subject = await create_subject(db, subject_name)
     return subject
 
 
-async def fetch_subjects_by_ids(db: Database, subject_ids: list[int]) -> list[models.Subject]:
-    FETCH_COMMAND: str = """
-        SELECT * FROM subject
-        WHERE id = ANY($1::int[])
-    """
-    async with db.pool.acquire() as con:
-        fetched_records = await con.fetch(FETCH_COMMAND, subject_ids)
-    return [models.Subject(**r) for r in fetched_records]
-
-
 # Subject Relationships
 
 
 async def create_subject_relations(
-    db: Database, subject: models.Subject, related_subjects: list[models.Subject]
+    db: Database, subject_name: str, related_subject_names: list[str]
 ) -> None:
     INSERT_COMMAND: str = """
         INSERT INTO subject_relation (subject_name, related_subject_name)
         VALUES ($1, $2)
     """
     async with db.pool.acquire() as con:
-        for related_subject in related_subjects:
+        for related_subject_name in related_subject_names:
             try:
-                await con.execute(INSERT_COMMAND, subject.name, related_subject.name)
+                await con.execute(INSERT_COMMAND, subject_name, related_subject_name)
                 logger.info(
                     "Subject relationships created",
                     extra={
-                        "subject_name": subject.name,
-                        "related_subject_name": related_subject.name,
+                        "subject_name": subject_name,
+                        "related_subject_name": related_subject_name,
                     },
                 )
             except asyncpg.exceptions.UniqueViolationError as e:
+                # Do not re-raise the exception, just log it
                 logger.info(
                     "Subject relationship could not be created because it already exists",
                     extra={"error": e},
                 )
 
 
+class SubjectRelationRecord(BaseModel):
+    subject_name: str
+    related_subject_name: str
+
+
 async def fetch_subject_relations_by_subject_name(
     db: Database, subject_name: str
-) -> models.RelatedSubjects | None:
+) -> list[SubjectRelationRecord]:
     FETCH_COMMAND: str = """
         SELECT * FROM subject_relation
         JOIN subject
         ON subject_relation.related_subject_name = subject.name
         WHERE subject_relation.subject_name = $1
     """
-    subject = await fetch_subject_by_name(db, subject_name)
-    if subject is None:
-        return None
     async with db.pool.acquire() as con:
         fetched_records = await con.fetch(FETCH_COMMAND, subject_name)
         logger.info("Fetched subject relations", extra={"fetched_record": fetched_records})
     logger.info("Fetched subject relations", extra={"fetched_record": fetched_records})
-    related_subjects: list[models.Subject] = []
+    subject_relation_records: list[SubjectRelationRecord] = []
     for r in fetched_records:
-        related_subject = await fetch_subject_by_name(db, r["related_subject_name"])
-        if related_subject is not None:
-            related_subjects.append(related_subject)
-    return models.RelatedSubjects(
-        subject=subject,
-        related_subjects=related_subjects,
-    )
+        subject_relation_records.append(SubjectRelationRecord(**r))
+    return subject_relation_records
