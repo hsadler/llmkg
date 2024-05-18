@@ -8,7 +8,8 @@ X build knowledge graph subject/related_subjects CRUD API:
     X get most general subjects
     X get portion of knowledge graph given a certain subject
 X create tables for subjects and related subjects
-- implement CRUD API
+X implement CRUD API for subjects
+- implement read API for knowledge graphs
 - build script to populate knowledge graph DB from ChatGPT queries
 - DB queries:
     - get a portion of the knowledge graph given a certain subject
