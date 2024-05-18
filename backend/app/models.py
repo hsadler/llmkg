@@ -46,15 +46,12 @@ class ItemsOutput(BaseModel):
 # Knowledge Graph
 
 
-class KnowledgeGraphNode(BaseModel):
-    subject_name: str = Field(description="Node subject.")
-    related_subject_names: list[str] = Field(description="Related node subjects.")
+class Subject(BaseModel):
+    name: str = Field(description="Subject name.", example="cooking")
+    related_subjects: list[str] = Field(
+        description="Related subject names.", example=["baking", "sushi"]
+    )
 
 
 class KnowledgeGraph(BaseModel):
-    nodes: list[KnowledgeGraphNode] = Field(description="Nodes in the knowledge graph.")
-
-
-class KnowledgeGraphOutput(BaseModel):
-    data: KnowledgeGraph = Field(description="Knowledge graph.")
-    meta: dict[str, Any] = Field(description="Metadata about the knowledge graph.")
+    subjects: list[Subject] = Field(description="Subjects within in the knowledge graph.")

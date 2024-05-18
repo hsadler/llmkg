@@ -6,19 +6,13 @@ from pydantic import BaseModel, Field
 from starlette import status
 
 from app.database import Database, get_database
+from app.models import Subject
 from app.repos import subjects as subjects_repo
 
 logger = logging.getLogger(__name__)
 
 
 router: APIRouter = APIRouter(prefix="/api/subjects", tags=["subjects"])
-
-
-class Subject(BaseModel):
-    name: str = Field(description="Subject name.", example="cooking")
-    related_subjects: list[str] = Field(
-        description="Related subject names.", example=["baking", "sushi"]
-    )
 
 
 class APISubjectOutput(BaseModel):
@@ -110,3 +104,26 @@ async def create_related_subjects(
         )
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return Response(status_code=status.HTTP_201_CREATED)
+
+
+class APISubjectListOutput(BaseModel):
+    data: list[str] = Field(description="General Subjects fetched.")
+    meta: dict[str, Any] = Field(description="Metadata about the subjects.")
+
+
+@router.get(
+    "/general",
+    description="Fetch most general subjects.",
+    responses={
+        "404": {"description": "Resource not found"},
+    },
+)
+async def get_general_subjects(
+    limit: int = Query(default=10, ge=1, le=100), db: Database = Depends(get_database)
+) -> APISubjectListOutput:
+    logger.info("Fetching general subjects with limit", extra={"limit": limit})
+    # STUB: mock data response
+    return APISubjectListOutput(
+        data=[str(i) for i in range(limit)],
+        meta={},
+    )
