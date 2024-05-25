@@ -122,8 +122,9 @@ async def get_general_subjects(
     limit: int = Query(default=10, ge=1, le=100), db: Database = Depends(get_database)
 ) -> APISubjectListOutput:
     logger.info("Fetching general subjects with limit", extra={"limit": limit})
-    # STUB: mock data response
-    return APISubjectListOutput(
-        data=[str(i) for i in range(limit)],
-        meta={},
-    )
+    try:
+        general_subjects = await subjects_repo.fetch_general_subjects(db, limit)
+        return APISubjectListOutput(data=general_subjects, meta={})
+    except Exception as e:
+        logger.exception("Error fetching general subjects", extra={"error": e})
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)

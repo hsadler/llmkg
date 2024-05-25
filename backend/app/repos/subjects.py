@@ -45,20 +45,17 @@ async def create_subject(db: Database, subject_name: str) -> SubjectRecord:
         raise e
 
 
-async def fetch_subjects_ranked_by_related_subjects_count(db: Database) -> list[SubjectRecord]:
-    # fetch related subject name counts per subject from subject_relation table.
-    # rank subjects by the number of related subjects.
-    # return a list of subjects with their related subjects count.
+async def fetch_general_subjects(db: Database, limit: int) -> list[str]:
     FETCH_COMMAND: str = """
-        SELECT subject.name, COUNT(subject_relation.related_subject_name) AS related_subjects_count
-        FROM subject
-        LEFT JOIN subject_relation
-        ON subject.name = subject_relation.subject_name
-        GROUP BY subject.name
-        ORDER BY related_subjects_count DESC
+        SELECT related_subject_name, COUNT(*) as count
+        FROM subject_relation
+        GROUP BY related_subject_name
+        ORDER BY count DESC
+        LIMIT $1
     """
-    print(FETCH_COMMAND)
-    return []
+    async with db.pool.acquire() as con:
+        fetched_records = await con.fetch(FETCH_COMMAND, limit)
+    return [r["related_subject_name"] for r in fetched_records]
 
 
 async def fetch_subject_by_name(db: Database, subject_name: str) -> Union[SubjectRecord, None]:
