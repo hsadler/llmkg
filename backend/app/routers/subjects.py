@@ -28,7 +28,8 @@ class APISubjectOutput(BaseModel):
     },
 )
 async def find_or_create_subject_by_name(
-    subject_name: str = Query(min_length=1, example="cooking"), db: Database = Depends(get_database)
+    subject_name: str = Query(min_length=1, examples=["cooking"]),
+    db: Database = Depends(get_database),
 ) -> APISubjectOutput:
     logger.info("Finding or creating new subject", extra={"subject_name": subject_name})
     try:
@@ -60,9 +61,9 @@ async def find_or_create_subject_by_name(
 
 
 class APIRelatedSubjectsCreate(BaseModel):
-    subject_name: str = Field(description="Subject name.", example="cooking")
+    subject_name: str = Field(description="Subject name.", examples=["cooking"])
     related_subject_names: list[str] = Field(
-        description="Related subject names.", example=["baking", "sushi"]
+        description="Related subject names.", examples=[["baking", "grilling"]]
     )
 
 

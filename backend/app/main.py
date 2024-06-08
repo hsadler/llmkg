@@ -1,4 +1,6 @@
 import logging
+from contextlib import asynccontextmanager
+from typing import Any
 
 from fastapi import FastAPI
 from prometheus_fastapi_instrumentator import Instrumentator
@@ -22,15 +24,12 @@ app = FastAPI(
 )
 
 
-@app.on_event("startup")
-async def startup_event() -> None:
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> Any:
     if settings.is_prod:
         db = await get_database()
         await db.run_migrations()
-
-
-@app.on_event("shutdown")
-async def shutdown() -> None:
+    yield
     db = await get_database()
     await db.cleanup()
 

@@ -14,11 +14,11 @@ logger = logging.getLogger(__name__)
 
 
 class SubjectRecord(BaseModel):
-    id: int = Field(gt=0, description="Item id. Autoincremented.", example=1)
+    id: int = Field(gt=0, description="Item id. Autoincremented.", examples=[1])
     uuid: UUID = Field(
-        description="Item uuid4 identifier.", example="123e4567-e89b-12d3-a456-426614174000"
+        description="Item uuid4 identifier.", examples=["123e4567-e89b-12d3-a456-426614174000"]
     )
-    name: str = Field(max_length=50, description="Subject name.", example="cooking")
+    name: str = Field(max_length=50, description="Subject name.", examples=["cooking"])
 
 
 async def create_subject(db: Database, subject_name: str) -> SubjectRecord:

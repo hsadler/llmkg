@@ -21,6 +21,7 @@ class Database:
         command.upgrade(alembic_cfg, "head")
 
     async def cleanup(self) -> None:
+        logger.info("Closing DB connection pool")
         await self.pool.close()
 
 

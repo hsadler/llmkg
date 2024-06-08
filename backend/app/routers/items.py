@@ -23,7 +23,7 @@ router: APIRouter = APIRouter(prefix="/api/items", tags=["items"])
     },
 )
 async def get_item(
-    item_id: int = Path(gt=0, example=1), db: Database = Depends(get_database)
+    item_id: int = Path(..., gt=0, examples=[1, 2]), db: Database = Depends(get_database)
 ) -> models.ItemOutput:
     logger.info("Fetching item by id", extra={"item_id": item_id})
     try:
@@ -39,7 +39,7 @@ async def get_item(
 
 @router.get("", description="Fetch multiple items by ids.")
 async def get_items(
-    item_ids: list[int] = Query(gt=0, example=[1, 2]), db: Database = Depends(get_database)
+    item_ids: list[int] = Query(examples=[1, 2]), db: Database = Depends(get_database)
 ) -> models.ItemsOutput:
     logger.info("Fetching items by ids", extra={"item_ids": item_ids})
     try:

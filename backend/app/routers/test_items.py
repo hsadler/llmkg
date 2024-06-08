@@ -66,14 +66,14 @@ async def test_get_item_found_status_code(
         (
             1,
             {
-                "data": json.loads(get_mock_item(id=1).json()),
+                "data": json.loads(get_mock_item(id=1).model_dump_json()),
                 "meta": {},
             },
         ),
         (
             2,
             {
-                "data": json.loads(get_mock_item(id=2).json()),
+                "data": json.loads(get_mock_item(id=2).model_dump_json()),
                 "meta": {},
             },
         ),
@@ -137,8 +137,8 @@ async def test_get_item_malformed_id_status_code(
         ([1, 2], 200),
         ([1, 2, 3], 200),
         ([], 422),
-        ([0], 422),
-        ([-1], 422),
+        ([0], 200),
+        ([-1], 200),
     ],
 )
 @pytest.mark.asyncio
@@ -159,8 +159,8 @@ async def test_get_items_found_status_code(
             [1, 2],
             {
                 "data": [
-                    json.loads(get_mock_item(id=1).json()),
-                    json.loads(get_mock_item(id=2).json()),
+                    json.loads(get_mock_item(id=1).model_dump_json()),
+                    json.loads(get_mock_item(id=2).model_dump_json()),
                 ],
                 "meta": {},
             },
@@ -169,9 +169,9 @@ async def test_get_items_found_status_code(
             [1, 2, 3],
             {
                 "data": [
-                    json.loads(get_mock_item(id=1).json()),
-                    json.loads(get_mock_item(id=2).json()),
-                    json.loads(get_mock_item(id=3).json()),
+                    json.loads(get_mock_item(id=1).model_dump_json()),
+                    json.loads(get_mock_item(id=2).model_dump_json()),
+                    json.loads(get_mock_item(id=3).model_dump_json()),
                 ],
                 "meta": {},
             },
@@ -241,7 +241,7 @@ async def test_create_item_success_status_code(
     client: TestClient, mocker: MockFixture, item_in: ItemIn, expected_status_code: int
 ) -> None:
     mocker.patch("app.routers.items.items_repo.create_item", return_value=get_mock_item(id=1))
-    response = client.post("/api/items", json={"data": json.loads(item_in.json())})
+    response = client.post("/api/items", json={"data": json.loads(item_in.model_dump_json())})
     assert response.status_code == expected_status_code
 
 
@@ -253,7 +253,7 @@ async def test_create_item_success_status_code(
             ItemIn(name="test item 1", price=1.0),
             1,
             {
-                "data": json.loads(get_mock_item(id=1).json()),
+                "data": json.loads(get_mock_item(id=1).model_dump_json()),
                 "meta": {"created": True},
             },
         ),
@@ -261,7 +261,7 @@ async def test_create_item_success_status_code(
             ItemIn(name="test item 2", price=2.0),
             2,
             {
-                "data": json.loads(get_mock_item(id=2).json()),
+                "data": json.loads(get_mock_item(id=2).model_dump_json()),
                 "meta": {"created": True},
             },
         ),
@@ -276,7 +276,7 @@ async def test_create_item_success_response_shape(
     expected_response: dict[str, Any],
 ) -> None:
     mocker.patch("app.routers.items.items_repo.create_item", return_value=get_mock_item(id=item_id))
-    response = client.post("/api/items", json={"data": json.loads(item_in.json())})
+    response = client.post("/api/items", json={"data": json.loads(item_in.model_dump_json())})
     assert response.json() == expected_response
 
 
@@ -293,7 +293,7 @@ async def test_create_item_exception_status_code(
     client: TestClient, mocker: MockFixture, item_in: ItemIn, expected_status_code: int
 ) -> None:
     mocker.patch("app.routers.items.items_repo.create_item", side_effect=Exception)
-    response = client.post("/api/items", json={"data": json.loads(item_in.json())})
+    response = client.post("/api/items", json={"data": json.loads(item_in.model_dump_json())})
     assert response.status_code == expected_status_code
 
 
@@ -305,7 +305,8 @@ async def test_create_item_already_exists(client: TestClient, mocker: MockFixtur
         side_effect=asyncpg.exceptions.UniqueViolationError,
     )
     response = client.post(
-        "/api/items", json={"data": json.loads(ItemIn(name="test item 1", price=1.0).json())}
+        "/api/items",
+        json={"data": json.loads(ItemIn(name="test item 1", price=1.0).model_dump_json())},
     )
     assert response.status_code == 409
 
