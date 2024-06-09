@@ -17,21 +17,24 @@ setup_logging()
 logger = logging.getLogger(__name__)
 
 
-app = FastAPI(
-    docs_url="/docs",
-    title="LLMKG Server",
-    version="0.1.0",
-)
-
-
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> Any:
+async def lifespan(_: FastAPI) -> Any:
+    logger.info("Starting FastAPI lifespan")
     if settings.is_prod:
         db = await get_database()
         await db.run_migrations()
     yield
+    logger.info("Ending FastAPI lifespan")
     db = await get_database()
     await db.cleanup()
+
+
+app = FastAPI(
+    docs_url="/docs",
+    title="LLMKG Server",
+    version="0.1.0",
+    lifespan=lifespan,
+)
 
 
 @app.get("/status", description='Returns `"ok"` if the server is up', tags=["status"])
