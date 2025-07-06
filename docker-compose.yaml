@@ -1,12 +1,10 @@
-version: "3.8"
-
 services:
   app:
     build:
-      context: .
+      context: ./backend
       target: development
     volumes:
-      - .:/app
+      - ./backend:/app
     depends_on:
       db:
         condition: service_healthy

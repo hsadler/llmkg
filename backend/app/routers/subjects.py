@@ -32,15 +32,18 @@ async def find_or_create_subject_by_name(
     db: Database = Depends(get_database),
 ) -> APISubjectOutput:
     logger.info("Finding or creating new subject", extra={"subject_name": subject_name})
+    is_created: bool = False
     try:
         subject_record = await subjects_repo.fetch_subject_by_name(db, subject_name=subject_name)
         if subject_record is not None:
             # Existing subject found
             logger.info("Subject found", extra={"subject_record": dict(subject_record)})
+            is_created = False
         else:
             # Create new subject
             subject_record = await subjects_repo.create_subject(db, subject_name=subject_name)
             logger.info("Subject created", extra={"subject_record": dict(subject_record)})
+            is_created = True
         logger.info(
             "Fetching related subjects by subject name", extra={"subject_name": subject_name}
         )
@@ -51,7 +54,7 @@ async def find_or_create_subject_by_name(
             name=subject_record.name,
             related_subjects=[r.related_subject_name for r in subject_relation_records],
         )
-        return APISubjectOutput(data=subject, meta={})
+        return APISubjectOutput(data=subject, meta={"created": is_created})
     except Exception as e:
         logger.exception(
             "Error finding or creating subject",

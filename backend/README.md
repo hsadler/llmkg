@@ -1,14 +1,4 @@
-# Python + FastAPI + asyncpg Template
-
-## What does this template contain?
-- FastAPI server with an "items" API
-- Postgres Database
-- DB connection pooling and "items" CRUD via asyncpg
-- DB migrations via Alembic
-- Basic server logging setup
-- Swagger docs for all exposed server endpoints
-- API tests via pytest and FastAPI test client
-- Local dev environment with docker-compose
+# llmkg-backend
 
 ## Getting started
 
@@ -51,28 +41,6 @@ http GET http://localhost:8000/status
 Run DB migrations
 ```sh
 docker compose exec app alembic upgrade head
-```
-
-## Try out the "items" example API
-
-POST an items
-```sh
-http POST http://127.0.0.1:8000/api/items data:='{"name": "foo", "price": 3.14}'
-```
-
-GET a single item
-```sh
-http GET http://127.0.0.1:8000/api/items/1
-```
-
-GET multiple items
-```sh
-http GET 'http://127.0.0.1:8000/api/items' item_ids==1 item_ids==2
-```
-
-Spin-down containers when finished
-```sh
-docker compose down
 ```
 
 ### Running the docker containers will spin-up Swagger docs and Adminer
