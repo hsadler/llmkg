@@ -1,19 +1,14 @@
-[tool.poetry]
+[project]
 name = "llmkg-streamlit"
 version = "0.1.0"
 description = "Streamlit POC clients for the LLMKG project"
-authors = ["hsadler <harrysadlermusic@gmail.com>"]
-package-mode = false
+authors = [
+    {name = "hsadler", email = "harrysadlermusic@gmail.com"}
+]
 readme = "README.md"
-
-[tool.poetry.dependencies]
-python = "^3.12"
-openai = "^1.16.2"
-streamlit = "^1.33.0"
-graphviz = "^0.20.3"
-nltk = "^3.8.1"
-
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires-python = ">=3.12"
+dependencies = [
+    "openai>=1.16.2",
+    "streamlit>=1.33.0",
+    "graphviz>=0.20.3",
+]
