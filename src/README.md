@@ -23,7 +23,7 @@ make up
 This will start:
 - The [API server](http://127.0.0.1:8000/ping) on port `8000`
 - PostgreSQL database on port `5433`
-- [Adminer](http://127.0.0.1:8080/?pgsql=db&username=user&db=example_db&ns=public)
+- [Adminer](http://127.0.0.1:8080/?pgsql=db&username=user&db=llmkg_db&ns=public)
     database management tool on port `8080`
 
 Spin down the application

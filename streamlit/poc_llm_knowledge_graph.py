@@ -95,20 +95,18 @@ if initial_subject:
         initial_subject, subjects_breadth, subjects_depth
     )
 
+    # Pretty print the knowledge graph data structure
+    st.subheader("Knowledge Graph Data Structure")
+    st.json(knowledge_graph)
+
     graph = graphviz.Digraph(
         name="knowledge_graph",
         format="png", 
-        # engine="neato",
         renderer="gd",
         graph_attr={
             "rankdir": "LR",
             "nodesep": "0.5",
             "shape": "box"
-            # "ranksep": "2.4",
-            # "ranksep": "1",
-            # "overlap": "false",
-            # "node": "[shape=box]",
-            # "size": "10"
         },
         strict=True
     )
