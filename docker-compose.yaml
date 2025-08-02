@@ -1,10 +1,10 @@
 services:
   app:
     build:
-      context: ./backend
+      context: ./src
       target: development
     volumes:
-      - ./backend:/app
+      - ./src:/app
     depends_on:
       db:
         condition: service_healthy
@@ -13,6 +13,17 @@ services:
       DATABASE_URL: postgresql://user:password@db:5432/llmkg_db
     ports:
       - "8000:8000"
+    command: >
+      CompileDaemon
+        -color=true
+        -build="make compile-binaries"
+        -command="build/app"
+        -exclude-dir=.git
+        -exclude-dir=./build
+        -exclude-dir=./internal/openapi/ogen
+        -include=openapi-schema.yaml
+        -include=go.mod
+        -include=go.sum
 
   db:
     image: postgres:15.3-alpine3.18

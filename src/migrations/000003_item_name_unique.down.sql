@@ -1,0 +1,1 @@
+ALTER TABLE item DROP CONSTRAINT item_name_unique;

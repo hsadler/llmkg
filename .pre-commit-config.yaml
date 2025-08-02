@@ -3,6 +3,6 @@ repos:
   hooks:
     - id: llmkg-backend-lint-pytest
       name: Run LLMKG Backend python lint and pytest
-      entry: bash -c 'cd backend && make pre-commit'
+      entry: bash -c 'cd src && make test'
       language: system
       pass_filenames: false

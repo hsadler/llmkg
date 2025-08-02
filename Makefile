@@ -18,15 +18,6 @@ up:
 down:
 	docker compose down
 
-app-shell:
-	docker compose exec app bash
-
-db-migrate:
-	docker compose exec app alembic upgrade head
-
-db-migrate-dry-run:
-	docker compose exec app alembic upgrade head --sql
-
 cleanup-images-volumes:
 	@read -p "Are you sure you want to clean up images and volumes? (yes/no): " answer; \
 	if [ "$$answer" = "yes" ]; then \
@@ -34,3 +25,17 @@ cleanup-images-volumes:
 	else \
 		echo "Cleanup canceled."; \
 	fi
+
+# Database migrations
+
+db-migrate-up:
+	docker compose run app sh -c \
+	'migrate -path=./migrations -database="$${DATABASE_URL}?sslmode=disable" up'
+
+db-migrate-down-1:
+	docker compose run app sh -c \
+	'migrate -path=./migrations -database="$${DATABASE_URL}?sslmode=disable" down 1'
+
+db-migrate-down-all:
+	docker compose run app sh -c \
+	'migrate -path=./migrations -database="$${DATABASE_URL}?sslmode=disable" down -all'
