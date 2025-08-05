@@ -13,15 +13,6 @@ type UnimplementedHandler struct{}
 
 var _ Handler = UnimplementedHandler{}
 
-// CreateItem implements createItem operation.
-//
-// Creates Item.
-//
-// POST /items
-func (UnimplementedHandler) CreateItem(ctx context.Context, req *ItemCreateRequest) (r CreateItemRes, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
 // CreateSubject implements createSubject operation.
 //
 // Creates Subject.
@@ -40,24 +31,6 @@ func (UnimplementedHandler) CreateSubjectRelation(ctx context.Context, req *Subj
 	return r, ht.ErrNotImplemented
 }
 
-// DeleteItem implements deleteItem operation.
-//
-// Deletes Item.
-//
-// DELETE /items/{itemId}
-func (UnimplementedHandler) DeleteItem(ctx context.Context, params DeleteItemParams) (r DeleteItemRes, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
-// GetItem implements getItem operation.
-//
-// Returns a single Item by id.
-//
-// GET /items/{itemId}
-func (UnimplementedHandler) GetItem(ctx context.Context, params GetItemParams) (r GetItemRes, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
 // GetSubject implements getSubject operation.
 //
 // Returns a single Subject by id.
@@ -73,15 +46,6 @@ func (UnimplementedHandler) GetSubject(ctx context.Context, params GetSubjectPar
 //
 // GET /ping
 func (UnimplementedHandler) Ping(ctx context.Context) (r *PingResponse, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
-// UpdateItem implements updateItem operation.
-//
-// Updates a single Item by id.
-//
-// PATCH /items/{itemId}
-func (UnimplementedHandler) UpdateItem(ctx context.Context, req *ItemUpdateRequest, params UpdateItemParams) (r UpdateItemRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

@@ -19,18 +19,19 @@ var (
 	ErrorSubjectQuery          = errors.New("Error querying Subject")
 	ErrorCreateSubjectRelation = errors.New("Error creating Subject Relation")
 	ErrorSubjectRelationExists = errors.New("Subject Relation already exists")
+	ErrorSubjectRelationQuery  = errors.New("Error querying Subject Relation")
 )
 
 // Subject
 
 func InsertSubject(dbPool database.PgxPoolIface, subjectIn models.SubjectIn) (*models.Subject, error) {
 	// Insert Subject
-	var subjectId int
+	var subject models.Subject
 	err := dbPool.QueryRow(
 		context.Background(),
-		"INSERT INTO subject (name) VALUES ($1) RETURNING id",
+		"INSERT INTO subject (name) VALUES ($1) RETURNING id, uuid, created_at, name",
 		subjectIn.Name,
-	).Scan(&subjectId)
+	).Scan(&subject.ID, &subject.UUID, &subject.CreatedAt, &subject.Name)
 	// Handle Subject insert error
 	if err != nil {
 		var pgErr *pgconn.PgError
@@ -43,12 +44,7 @@ func InsertSubject(dbPool database.PgxPoolIface, subjectIn models.SubjectIn) (*m
 		logger.LogErrorWithStacktrace(err, "Error inserting Subject")
 		return nil, ErrorCreateSubject
 	}
-	// Fetch Subject by ID
-	subject, err := FetchSubjectById(dbPool, subjectId)
-	if err != nil {
-		return nil, err
-	}
-	return subject, nil
+	return &subject, nil
 }
 
 func FetchSubjectById(dbPool database.PgxPoolIface, subjectId int) (*models.Subject, error) {
@@ -103,4 +99,72 @@ func InsertSubjectRelation(
 		return nil, ErrorCreateSubjectRelation
 	}
 	return &subjectRelation, nil
+}
+
+func FetchSubjectRelationsBySubjectId(
+	dbPool database.PgxPoolIface,
+	subjectId int,
+) ([]models.SubjectRelation, error) {
+	// Fetch Subject Relations rows by Subject ID
+	var subjectRelations []models.SubjectRelation
+	rows, err := dbPool.Query(
+		context.Background(),
+		"SELECT id, created_at, subject_id, related_subject_id FROM subject_relation WHERE subject_id = $1",
+		subjectId,
+	)
+	if err != nil {
+		logger.LogErrorWithStacktrace(err, "Error querying Subject Relation")
+		return nil, err
+	}
+	defer rows.Close()
+	// Scan rows into subjectRelations
+	for rows.Next() {
+		var subjectRelation models.SubjectRelation
+		err := rows.Scan(
+			&subjectRelation.ID,
+			&subjectRelation.CreatedAt,
+			&subjectRelation.SubjectID,
+			&subjectRelation.RelatedSubjectID,
+		)
+		if err != nil {
+			logger.LogErrorWithStacktrace(err, "Error scanning Subject Relation")
+			return nil, ErrorSubjectRelationQuery
+		}
+		subjectRelations = append(subjectRelations, subjectRelation)
+	}
+	return subjectRelations, nil
+}
+
+func FetchSubjectRelationsByRelatedSubjectId(
+	dbPool database.PgxPoolIface,
+	relatedSubjectId int,
+) ([]models.SubjectRelation, error) {
+	// Fetch Subject Relations rows by Related Subject ID
+	var subjectRelations []models.SubjectRelation
+	rows, err := dbPool.Query(
+		context.Background(),
+		"SELECT id, created_at, subject_id, related_subject_id FROM subject_relation WHERE related_subject_id = $1",
+		relatedSubjectId,
+	)
+	if err != nil {
+		logger.LogErrorWithStacktrace(err, "Error querying Subject Relation")
+		return nil, err
+	}
+	defer rows.Close()
+	// Scan rows into subjectRelations
+	for rows.Next() {
+		var subjectRelation models.SubjectRelation
+		err := rows.Scan(
+			&subjectRelation.ID,
+			&subjectRelation.CreatedAt,
+			&subjectRelation.SubjectID,
+			&subjectRelation.RelatedSubjectID,
+		)
+		if err != nil {
+			logger.LogErrorWithStacktrace(err, "Error scanning Subject Relation")
+			return nil, ErrorSubjectRelationQuery
+		}
+		subjectRelations = append(subjectRelations, subjectRelation)
+	}
+	return subjectRelations, nil
 }

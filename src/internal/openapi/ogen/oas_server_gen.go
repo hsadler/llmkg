@@ -8,12 +8,6 @@ import (
 
 // Handler handles operations described by OpenAPI v3 specification.
 type Handler interface {
-	// CreateItem implements createItem operation.
-	//
-	// Creates Item.
-	//
-	// POST /items
-	CreateItem(ctx context.Context, req *ItemCreateRequest) (CreateItemRes, error)
 	// CreateSubject implements createSubject operation.
 	//
 	// Creates Subject.
@@ -26,18 +20,6 @@ type Handler interface {
 	//
 	// POST /subject_relations
 	CreateSubjectRelation(ctx context.Context, req *SubjectRelationCreateRequest) (CreateSubjectRelationRes, error)
-	// DeleteItem implements deleteItem operation.
-	//
-	// Deletes Item.
-	//
-	// DELETE /items/{itemId}
-	DeleteItem(ctx context.Context, params DeleteItemParams) (DeleteItemRes, error)
-	// GetItem implements getItem operation.
-	//
-	// Returns a single Item by id.
-	//
-	// GET /items/{itemId}
-	GetItem(ctx context.Context, params GetItemParams) (GetItemRes, error)
 	// GetSubject implements getSubject operation.
 	//
 	// Returns a single Subject by id.
@@ -50,12 +32,6 @@ type Handler interface {
 	//
 	// GET /ping
 	Ping(ctx context.Context) (*PingResponse, error)
-	// UpdateItem implements updateItem operation.
-	//
-	// Updates a single Item by id.
-	//
-	// PATCH /items/{itemId}
-	UpdateItem(ctx context.Context, req *ItemUpdateRequest, params UpdateItemParams) (UpdateItemRes, error)
 	// NewError creates *ErrorResponseStatusCode from error returned by handler.
 	//
 	// Used for common default response.

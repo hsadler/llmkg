@@ -11,20 +11,6 @@ import (
 	ht "github.com/ogen-go/ogen/http"
 )
 
-func encodeCreateItemRequest(
-	req *ItemCreateRequest,
-	r *http.Request,
-) error {
-	const contentType = "application/json"
-	e := new(jx.Encoder)
-	{
-		req.Encode(e)
-	}
-	encoded := e.Bytes()
-	ht.SetBody(r, bytes.NewReader(encoded), contentType)
-	return nil
-}
-
 func encodeCreateSubjectRequest(
 	req *SubjectCreateRequest,
 	r *http.Request,
@@ -41,20 +27,6 @@ func encodeCreateSubjectRequest(
 
 func encodeCreateSubjectRelationRequest(
 	req *SubjectRelationCreateRequest,
-	r *http.Request,
-) error {
-	const contentType = "application/json"
-	e := new(jx.Encoder)
-	{
-		req.Encode(e)
-	}
-	encoded := e.Bytes()
-	ht.SetBody(r, bytes.NewReader(encoded), contentType)
-	return nil
-}
-
-func encodeUpdateItemRequest(
-	req *ItemUpdateRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"

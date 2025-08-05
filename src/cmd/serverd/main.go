@@ -39,22 +39,22 @@ func main() {
 		port = "8000"
 	}
 
-	// Create OGEN server for items API
-	itemsOgenServer, err := ogen.NewServer(&openapi.ItemsService{Deps: deps})
+	// Create OGEN server for LLMKG API
+	llmkgOgenServer, err := ogen.NewServer(&openapi.LLMKGService{Deps: deps})
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to create OGEN server")
 	}
 
-	// Create HTTP server for items API
-	itemsHttpServer := &http.Server{
+	// Create HTTP server for LLMKG API
+	llmkgHttpServer := &http.Server{
 		Addr:    fmt.Sprintf(":%s", port),
-		Handler: itemsOgenServer,
+		Handler: llmkgOgenServer,
 	}
 
 	// Start items API server in a goroutine
 	go func() {
 		log.Info().Str("port", port).Msg("Starting server")
-		if err := itemsHttpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := llmkgHttpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatal().Err(err).Msg("Failed to start server")
 		}
 	}()
@@ -68,7 +68,7 @@ func main() {
 	defer cancel()
 
 	// Shutdown server gracefully
-	if err := itemsHttpServer.Shutdown(shutdownCtx); err != nil {
+	if err := llmkgHttpServer.Shutdown(shutdownCtx); err != nil {
 		log.Fatal().Err(err).Msg("Server forced to shutdown")
 	}
 

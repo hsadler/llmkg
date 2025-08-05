@@ -5,12 +5,21 @@
 - python 3.12+
 
 ## Getting started
-Create a virtual environment
+
+### 1. Create a virtual environment
 ```bash
 uv venv
 ```
 
-## Install dependencies
+### 2. Set up environment variables
+Copy the example environment file and add your OpenAI API key:
+```bash
+cp .env.example .env
+```
+
+Then add your OpenAI API key to the `.env` file.
+
+### 3. Install dependencies
 ```bash
 uv sync
 ```

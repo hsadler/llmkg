@@ -6,23 +6,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-faster/errors"
 	"github.com/google/uuid"
 )
 
 func (s *ErrorResponseStatusCode) Error() string {
 	return fmt.Sprintf("code %d: %+v", s.StatusCode, s.Response)
 }
-
-// DeleteItemNoContent is response for DeleteItem operation.
-type DeleteItemNoContent struct{}
-
-func (*DeleteItemNoContent) deleteItemRes() {}
-
-// DeleteItemNotFound is response for DeleteItem operation.
-type DeleteItemNotFound struct{}
-
-func (*DeleteItemNotFound) deleteItemRes() {}
 
 // Ref: #/components/schemas/ErrorResponse
 type ErrorResponse struct {
@@ -39,10 +28,8 @@ func (s *ErrorResponse) SetError(val string) {
 	s.Error = val
 }
 
-func (*ErrorResponse) createItemRes()            {}
 func (*ErrorResponse) createSubjectRelationRes() {}
 func (*ErrorResponse) createSubjectRes()         {}
-func (*ErrorResponse) updateItemRes()            {}
 
 // ErrorResponseStatusCode wraps ErrorResponse with StatusCode.
 type ErrorResponseStatusCode struct {
@@ -70,330 +57,10 @@ func (s *ErrorResponseStatusCode) SetResponse(val ErrorResponse) {
 	s.Response = val
 }
 
-// GetItemNotFound is response for GetItem operation.
-type GetItemNotFound struct{}
-
-func (*GetItemNotFound) getItemRes() {}
-
 // GetSubjectNotFound is response for GetSubject operation.
 type GetSubjectNotFound struct{}
 
 func (*GetSubjectNotFound) getSubjectRes() {}
-
-// Ref: #/components/schemas/Item
-type Item struct {
-	ID        int64     `json:"id"`
-	UUID      uuid.UUID `json:"uuid"`
-	CreatedAt time.Time `json:"created_at"`
-	Name      string    `json:"name"`
-	Price     float32   `json:"price"`
-}
-
-// GetID returns the value of ID.
-func (s *Item) GetID() int64 {
-	return s.ID
-}
-
-// GetUUID returns the value of UUID.
-func (s *Item) GetUUID() uuid.UUID {
-	return s.UUID
-}
-
-// GetCreatedAt returns the value of CreatedAt.
-func (s *Item) GetCreatedAt() time.Time {
-	return s.CreatedAt
-}
-
-// GetName returns the value of Name.
-func (s *Item) GetName() string {
-	return s.Name
-}
-
-// GetPrice returns the value of Price.
-func (s *Item) GetPrice() float32 {
-	return s.Price
-}
-
-// SetID sets the value of ID.
-func (s *Item) SetID(val int64) {
-	s.ID = val
-}
-
-// SetUUID sets the value of UUID.
-func (s *Item) SetUUID(val uuid.UUID) {
-	s.UUID = val
-}
-
-// SetCreatedAt sets the value of CreatedAt.
-func (s *Item) SetCreatedAt(val time.Time) {
-	s.CreatedAt = val
-}
-
-// SetName sets the value of Name.
-func (s *Item) SetName(val string) {
-	s.Name = val
-}
-
-// SetPrice sets the value of Price.
-func (s *Item) SetPrice(val float32) {
-	s.Price = val
-}
-
-// Ref: #/components/schemas/ItemCreateRequest
-type ItemCreateRequest struct {
-	Data ItemIn `json:"data"`
-}
-
-// GetData returns the value of Data.
-func (s *ItemCreateRequest) GetData() ItemIn {
-	return s.Data
-}
-
-// SetData sets the value of Data.
-func (s *ItemCreateRequest) SetData(val ItemIn) {
-	s.Data = val
-}
-
-// Ref: #/components/schemas/ItemCreateResponse
-type ItemCreateResponse struct {
-	Data Item     `json:"data"`
-	Meta ItemMeta `json:"meta"`
-}
-
-// GetData returns the value of Data.
-func (s *ItemCreateResponse) GetData() Item {
-	return s.Data
-}
-
-// GetMeta returns the value of Meta.
-func (s *ItemCreateResponse) GetMeta() ItemMeta {
-	return s.Meta
-}
-
-// SetData sets the value of Data.
-func (s *ItemCreateResponse) SetData(val Item) {
-	s.Data = val
-}
-
-// SetMeta sets the value of Meta.
-func (s *ItemCreateResponse) SetMeta(val ItemMeta) {
-	s.Meta = val
-}
-
-func (*ItemCreateResponse) createItemRes() {}
-
-// Ref: #/components/schemas/ItemGetResponse
-type ItemGetResponse struct {
-	Data Item     `json:"data"`
-	Meta ItemMeta `json:"meta"`
-}
-
-// GetData returns the value of Data.
-func (s *ItemGetResponse) GetData() Item {
-	return s.Data
-}
-
-// GetMeta returns the value of Meta.
-func (s *ItemGetResponse) GetMeta() ItemMeta {
-	return s.Meta
-}
-
-// SetData sets the value of Data.
-func (s *ItemGetResponse) SetData(val Item) {
-	s.Data = val
-}
-
-// SetMeta sets the value of Meta.
-func (s *ItemGetResponse) SetMeta(val ItemMeta) {
-	s.Meta = val
-}
-
-func (*ItemGetResponse) getItemRes() {}
-
-// Ref: #/components/schemas/ItemIn
-type ItemIn struct {
-	Name  string  `json:"name"`
-	Price float32 `json:"price"`
-}
-
-// GetName returns the value of Name.
-func (s *ItemIn) GetName() string {
-	return s.Name
-}
-
-// GetPrice returns the value of Price.
-func (s *ItemIn) GetPrice() float32 {
-	return s.Price
-}
-
-// SetName sets the value of Name.
-func (s *ItemIn) SetName(val string) {
-	s.Name = val
-}
-
-// SetPrice sets the value of Price.
-func (s *ItemIn) SetPrice(val float32) {
-	s.Price = val
-}
-
-// Ref: #/components/schemas/ItemMeta
-type ItemMeta struct {
-	ItemStatus OptItemMetaItemStatus `json:"item_status"`
-}
-
-// GetItemStatus returns the value of ItemStatus.
-func (s *ItemMeta) GetItemStatus() OptItemMetaItemStatus {
-	return s.ItemStatus
-}
-
-// SetItemStatus sets the value of ItemStatus.
-func (s *ItemMeta) SetItemStatus(val OptItemMetaItemStatus) {
-	s.ItemStatus = val
-}
-
-type ItemMetaItemStatus string
-
-const (
-	ItemMetaItemStatusCreated ItemMetaItemStatus = "created"
-	ItemMetaItemStatusFetched ItemMetaItemStatus = "fetched"
-	ItemMetaItemStatusUpdated ItemMetaItemStatus = "updated"
-	ItemMetaItemStatusDeleted ItemMetaItemStatus = "deleted"
-)
-
-// AllValues returns all ItemMetaItemStatus values.
-func (ItemMetaItemStatus) AllValues() []ItemMetaItemStatus {
-	return []ItemMetaItemStatus{
-		ItemMetaItemStatusCreated,
-		ItemMetaItemStatusFetched,
-		ItemMetaItemStatusUpdated,
-		ItemMetaItemStatusDeleted,
-	}
-}
-
-// MarshalText implements encoding.TextMarshaler.
-func (s ItemMetaItemStatus) MarshalText() ([]byte, error) {
-	switch s {
-	case ItemMetaItemStatusCreated:
-		return []byte(s), nil
-	case ItemMetaItemStatusFetched:
-		return []byte(s), nil
-	case ItemMetaItemStatusUpdated:
-		return []byte(s), nil
-	case ItemMetaItemStatusDeleted:
-		return []byte(s), nil
-	default:
-		return nil, errors.Errorf("invalid value: %q", s)
-	}
-}
-
-// UnmarshalText implements encoding.TextUnmarshaler.
-func (s *ItemMetaItemStatus) UnmarshalText(data []byte) error {
-	switch ItemMetaItemStatus(data) {
-	case ItemMetaItemStatusCreated:
-		*s = ItemMetaItemStatusCreated
-		return nil
-	case ItemMetaItemStatusFetched:
-		*s = ItemMetaItemStatusFetched
-		return nil
-	case ItemMetaItemStatusUpdated:
-		*s = ItemMetaItemStatusUpdated
-		return nil
-	case ItemMetaItemStatusDeleted:
-		*s = ItemMetaItemStatusDeleted
-		return nil
-	default:
-		return errors.Errorf("invalid value: %q", data)
-	}
-}
-
-// Ref: #/components/schemas/ItemUpdateRequest
-type ItemUpdateRequest struct {
-	Data ItemIn `json:"data"`
-}
-
-// GetData returns the value of Data.
-func (s *ItemUpdateRequest) GetData() ItemIn {
-	return s.Data
-}
-
-// SetData sets the value of Data.
-func (s *ItemUpdateRequest) SetData(val ItemIn) {
-	s.Data = val
-}
-
-// Ref: #/components/schemas/ItemUpdateResponse
-type ItemUpdateResponse struct {
-	Data Item     `json:"data"`
-	Meta ItemMeta `json:"meta"`
-}
-
-// GetData returns the value of Data.
-func (s *ItemUpdateResponse) GetData() Item {
-	return s.Data
-}
-
-// GetMeta returns the value of Meta.
-func (s *ItemUpdateResponse) GetMeta() ItemMeta {
-	return s.Meta
-}
-
-// SetData sets the value of Data.
-func (s *ItemUpdateResponse) SetData(val Item) {
-	s.Data = val
-}
-
-// SetMeta sets the value of Meta.
-func (s *ItemUpdateResponse) SetMeta(val ItemMeta) {
-	s.Meta = val
-}
-
-func (*ItemUpdateResponse) updateItemRes() {}
-
-// NewOptItemMetaItemStatus returns new OptItemMetaItemStatus with value set to v.
-func NewOptItemMetaItemStatus(v ItemMetaItemStatus) OptItemMetaItemStatus {
-	return OptItemMetaItemStatus{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptItemMetaItemStatus is optional ItemMetaItemStatus.
-type OptItemMetaItemStatus struct {
-	Value ItemMetaItemStatus
-	Set   bool
-}
-
-// IsSet returns true if OptItemMetaItemStatus was set.
-func (o OptItemMetaItemStatus) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptItemMetaItemStatus) Reset() {
-	var v ItemMetaItemStatus
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptItemMetaItemStatus) SetTo(v ItemMetaItemStatus) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptItemMetaItemStatus) Get() (v ItemMetaItemStatus, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptItemMetaItemStatus) Or(d ItemMetaItemStatus) ItemMetaItemStatus {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
 
 // Ref: #/components/schemas/PingResponse
 type PingResponse struct {
@@ -412,10 +79,12 @@ func (s *PingResponse) SetMessage(val string) {
 
 // Ref: #/components/schemas/Subject
 type Subject struct {
-	ID        int64     `json:"id"`
-	UUID      uuid.UUID `json:"uuid"`
-	CreatedAt time.Time `json:"created_at"`
-	Name      string    `json:"name"`
+	ID                    int64     `json:"id"`
+	UUID                  uuid.UUID `json:"uuid"`
+	CreatedAt             time.Time `json:"created_at"`
+	Name                  string    `json:"name"`
+	RelatedToSubjectIds   []int64   `json:"related_to_subject_ids"`
+	RelatedFromSubjectIds []int64   `json:"related_from_subject_ids"`
 }
 
 // GetID returns the value of ID.
@@ -438,6 +107,16 @@ func (s *Subject) GetName() string {
 	return s.Name
 }
 
+// GetRelatedToSubjectIds returns the value of RelatedToSubjectIds.
+func (s *Subject) GetRelatedToSubjectIds() []int64 {
+	return s.RelatedToSubjectIds
+}
+
+// GetRelatedFromSubjectIds returns the value of RelatedFromSubjectIds.
+func (s *Subject) GetRelatedFromSubjectIds() []int64 {
+	return s.RelatedFromSubjectIds
+}
+
 // SetID sets the value of ID.
 func (s *Subject) SetID(val int64) {
 	s.ID = val
@@ -456,6 +135,16 @@ func (s *Subject) SetCreatedAt(val time.Time) {
 // SetName sets the value of Name.
 func (s *Subject) SetName(val string) {
 	s.Name = val
+}
+
+// SetRelatedToSubjectIds sets the value of RelatedToSubjectIds.
+func (s *Subject) SetRelatedToSubjectIds(val []int64) {
+	s.RelatedToSubjectIds = val
+}
+
+// SetRelatedFromSubjectIds sets the value of RelatedFromSubjectIds.
+func (s *Subject) SetRelatedFromSubjectIds(val []int64) {
+	s.RelatedFromSubjectIds = val
 }
 
 // Ref: #/components/schemas/SubjectCreateRequest
@@ -627,8 +316,3 @@ func (s *SubjectRelationIn) SetSubjectID(val int64) {
 func (s *SubjectRelationIn) SetRelatedSubjectID(val int64) {
 	s.RelatedSubjectID = val
 }
-
-// UpdateItemNotFound is response for UpdateItem operation.
-type UpdateItemNotFound struct{}
-
-func (*UpdateItemNotFound) updateItemRes() {}

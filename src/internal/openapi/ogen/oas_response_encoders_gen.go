@@ -13,39 +13,6 @@ import (
 	ht "github.com/ogen-go/ogen/http"
 )
 
-func encodeCreateItemResponse(response CreateItemRes, w http.ResponseWriter, span trace.Span) error {
-	switch response := response.(type) {
-	case *ItemCreateResponse:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(201)
-		span.SetStatus(codes.Ok, http.StatusText(201))
-
-		e := new(jx.Encoder)
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-
-		return nil
-
-	case *ErrorResponse:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(409)
-		span.SetStatus(codes.Error, http.StatusText(409))
-
-		e := new(jx.Encoder)
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-
-		return nil
-
-	default:
-		return errors.Errorf("unexpected response type: %T", response)
-	}
-}
-
 func encodeCreateSubjectResponse(response CreateSubjectRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *SubjectCreateResponse:
@@ -112,51 +79,6 @@ func encodeCreateSubjectRelationResponse(response CreateSubjectRelationRes, w ht
 	}
 }
 
-func encodeDeleteItemResponse(response DeleteItemRes, w http.ResponseWriter, span trace.Span) error {
-	switch response := response.(type) {
-	case *DeleteItemNoContent:
-		w.WriteHeader(204)
-		span.SetStatus(codes.Ok, http.StatusText(204))
-
-		return nil
-
-	case *DeleteItemNotFound:
-		w.WriteHeader(404)
-		span.SetStatus(codes.Error, http.StatusText(404))
-
-		return nil
-
-	default:
-		return errors.Errorf("unexpected response type: %T", response)
-	}
-}
-
-func encodeGetItemResponse(response GetItemRes, w http.ResponseWriter, span trace.Span) error {
-	switch response := response.(type) {
-	case *ItemGetResponse:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(200)
-		span.SetStatus(codes.Ok, http.StatusText(200))
-
-		e := new(jx.Encoder)
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-
-		return nil
-
-	case *GetItemNotFound:
-		w.WriteHeader(404)
-		span.SetStatus(codes.Error, http.StatusText(404))
-
-		return nil
-
-	default:
-		return errors.Errorf("unexpected response type: %T", response)
-	}
-}
-
 func encodeGetSubjectResponse(response GetSubjectRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *SubjectGetResponse:
@@ -195,45 +117,6 @@ func encodePingResponse(response *PingResponse, w http.ResponseWriter, span trac
 	}
 
 	return nil
-}
-
-func encodeUpdateItemResponse(response UpdateItemRes, w http.ResponseWriter, span trace.Span) error {
-	switch response := response.(type) {
-	case *ItemUpdateResponse:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(200)
-		span.SetStatus(codes.Ok, http.StatusText(200))
-
-		e := new(jx.Encoder)
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-
-		return nil
-
-	case *UpdateItemNotFound:
-		w.WriteHeader(404)
-		span.SetStatus(codes.Error, http.StatusText(404))
-
-		return nil
-
-	case *ErrorResponse:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(409)
-		span.SetStatus(codes.Error, http.StatusText(409))
-
-		e := new(jx.Encoder)
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-
-		return nil
-
-	default:
-		return errors.Errorf("unexpected response type: %T", response)
-	}
 }
 
 func encodeErrorResponse(response *ErrorResponseStatusCode, w http.ResponseWriter, span trace.Span) error {

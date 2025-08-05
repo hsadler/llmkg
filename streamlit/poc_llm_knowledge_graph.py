@@ -1,14 +1,18 @@
 import json
+import os
 
 import streamlit as st
 import graphviz
 from openai import OpenAI
+from dotenv import load_dotenv
+
+load_dotenv()
 
 DEFAULT_SUBJECTS_BREADTH: int = 3
 DEFAULT_SUBJECTS_DEPTH: int = 3
 
 openai_client = OpenAI(
-    api_key="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"
+    api_key=os.getenv("OPENAI_API_KEY")
 )
 
 st.set_page_config(
