@@ -14,6 +14,18 @@ type Handler interface {
 	//
 	// POST /items
 	CreateItem(ctx context.Context, req *ItemCreateRequest) (CreateItemRes, error)
+	// CreateSubject implements createSubject operation.
+	//
+	// Creates Subject.
+	//
+	// POST /subjects
+	CreateSubject(ctx context.Context, req *SubjectCreateRequest) (CreateSubjectRes, error)
+	// CreateSubjectRelation implements createSubjectRelation operation.
+	//
+	// Creates Subject Relation.
+	//
+	// POST /subject_relations
+	CreateSubjectRelation(ctx context.Context, req *SubjectRelationCreateRequest) (CreateSubjectRelationRes, error)
 	// DeleteItem implements deleteItem operation.
 	//
 	// Deletes Item.
@@ -26,6 +38,12 @@ type Handler interface {
 	//
 	// GET /items/{itemId}
 	GetItem(ctx context.Context, params GetItemParams) (GetItemRes, error)
+	// GetSubject implements getSubject operation.
+	//
+	// Returns a single Subject by id.
+	//
+	// GET /subjects/{subjectId}
+	GetSubject(ctx context.Context, params GetSubjectParams) (GetSubjectRes, error)
 	// Ping implements ping operation.
 	//
 	// Check if the service is running.

@@ -23,16 +23,25 @@ func run(ctx context.Context) error {
 	if err := testPing(ctx, client); err != nil {
 		return err
 	}
-	if err := testCreateItem(ctx, client); err != nil {
+	// if err := testCreateItem(ctx, client); err != nil {
+	// 	return err
+	// }
+	// if err := testGetItem(ctx, client); err != nil {
+	// 	return err
+	// }
+	// if err := testUpdateItem(ctx, client); err != nil {
+	// 	return err
+	// }
+	// if err := testDeleteItem(ctx, client); err != nil {
+	// 	return err
+	// }
+	if err := testCreateSubject(ctx, client); err != nil {
 		return err
 	}
-	if err := testGetItem(ctx, client); err != nil {
+	if err := testGetSubject(ctx, client); err != nil {
 		return err
 	}
-	if err := testUpdateItem(ctx, client); err != nil {
-		return err
-	}
-	if err := testDeleteItem(ctx, client); err != nil {
+	if err := testCreateSubjectRelation(ctx, client); err != nil {
 		return err
 	}
 	return nil
@@ -121,11 +130,73 @@ func testDeleteItem(ctx context.Context, client *ogen.Client) error {
 	return nil
 }
 
+func testCreateSubject(ctx context.Context, client *ogen.Client) error {
+	req := &ogen.SubjectCreateRequest{
+		Data: ogen.SubjectIn{
+			Name: fmt.Sprintf("Subject-%d", timeId()),
+		},
+	}
+	res, err := client.CreateSubject(ctx, req)
+	if err != nil {
+		color.New(color.FgRed).Println(err)
+		return err
+	}
+	color.New(color.FgGreen).Println(res)
+	return nil
+}
+
+func testGetSubject(ctx context.Context, client *ogen.Client) error {
+	resp, err := client.GetSubject(ctx, ogen.GetSubjectParams{
+		SubjectId: 1,
+	})
+	if err != nil {
+		color.New(color.FgRed).Println(err)
+		return err
+	}
+	color.New(color.FgGreen).Println(resp)
+	return nil
+}
+
+func testCreateSubjectRelation(ctx context.Context, client *ogen.Client) error {
+	createSubjectRes, err := client.CreateSubject(ctx, &ogen.SubjectCreateRequest{
+		Data: ogen.SubjectIn{
+			Name: fmt.Sprintf("Subject-%d", timeId()),
+		},
+	})
+	if err != nil {
+		color.New(color.FgRed).Println(err)
+		return err
+	}
+	subjectIdA := createSubjectRes.(*ogen.SubjectCreateResponse).Data.ID
+	createSubjectRes, err = client.CreateSubject(ctx, &ogen.SubjectCreateRequest{
+		Data: ogen.SubjectIn{
+			Name: fmt.Sprintf("Subject-%d", timeId()),
+		},
+	})
+	if err != nil {
+		color.New(color.FgRed).Println(err)
+		return err
+	}
+	subjectIdB := createSubjectRes.(*ogen.SubjectCreateResponse).Data.ID
+	req := &ogen.SubjectRelationCreateRequest{
+		Data: ogen.SubjectRelationIn{
+			SubjectID:        subjectIdA,
+			RelatedSubjectID: subjectIdB,
+		},
+	}
+	res, err := client.CreateSubjectRelation(ctx, req)
+	if err != nil {
+		color.New(color.FgRed).Println(err)
+		return err
+	}
+	color.New(color.FgGreen).Println(res)
+	return nil
+}
+
 func main() {
 	ctx := context.Background()
 	err := run(ctx)
 	if err != nil {
-		color.New(color.FgRed).Println(err)
 		os.Exit(2)
 	}
 }

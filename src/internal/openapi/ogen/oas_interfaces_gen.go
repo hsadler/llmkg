@@ -5,12 +5,24 @@ type CreateItemRes interface {
 	createItemRes()
 }
 
+type CreateSubjectRelationRes interface {
+	createSubjectRelationRes()
+}
+
+type CreateSubjectRes interface {
+	createSubjectRes()
+}
+
 type DeleteItemRes interface {
 	deleteItemRes()
 }
 
 type GetItemRes interface {
 	getItemRes()
+}
+
+type GetSubjectRes interface {
+	getSubjectRes()
 }
 
 type UpdateItemRes interface {

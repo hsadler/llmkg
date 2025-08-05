@@ -51,7 +51,7 @@ First, have all docker-compose containers running with `make up`.
 
 Create a new migration
 ```bash
-docker compose run app migrate create -ext sql -dir ./migrations -seq <migration_name>
+docker compose exec app migrate create -ext sql -dir ./migrations -seq <migration_name>
 ```
 
 Write your "up" and "down" SQL into the new migration files.

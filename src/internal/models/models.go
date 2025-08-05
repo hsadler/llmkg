@@ -2,46 +2,40 @@ package models
 
 import "time"
 
-// Resource Entity Models
+// Domain Models
 
 type ItemIn struct {
-	Name  string  `json:"name" example:"foo" format:"string" validate:"required"`
-	Price float32 `json:"price" example:"3.14" format:"float64" validate:"min=0"`
+	Name  string
+	Price float32
 }
 
 type Item struct {
-	ID        int       `json:"id" example:"1" format:"int64"`
-	UUID      string    `json:"uuid" example:"550e8400-e29b-41d4-a716-446655440000" format:"uuid"`
-	CreatedAt time.Time `json:"created_at" example:"2021-01-01T00:00:00.000Z" format:"date-time"`
-	Name      string    `json:"name" example:"foo" format:"string"`
-	Price     float32   `json:"price" example:"3.14" format:"float64"`
+	ID        int
+	UUID      string
+	CreatedAt time.Time
+	Name      string
+	Price     float32
 }
 
-// API Request/Response Models
-
-type StatusResponse struct {
-	Status string `json:"status" example:"ok"`
+type SubjectIn struct {
+	Name string
 }
 
-type GetItemResponse struct {
-	Data *Item    `json:"data"`
-	Meta struct{} `json:"meta"`
+type Subject struct {
+	ID        int
+	UUID      string
+	CreatedAt time.Time
+	Name      string
 }
 
-type GetItemsResponse struct {
-	Data []*Item  `json:"data"`
-	Meta struct{} `json:"meta"`
+type SubjectRelationIn struct {
+	SubjectID        int
+	RelatedSubjectID int
 }
 
-type CreateItemRequest struct {
-	Data ItemIn `json:"data"`
-}
-
-type CreateItemResponseMeta struct {
-	Created bool `json:"created"`
-}
-
-type CreateItemResponse struct {
-	Data *Item                  `json:"data"`
-	Meta CreateItemResponseMeta `json:"meta"`
+type SubjectRelation struct {
+	ID               int
+	CreatedAt        time.Time
+	SubjectID        int
+	RelatedSubjectID int
 }

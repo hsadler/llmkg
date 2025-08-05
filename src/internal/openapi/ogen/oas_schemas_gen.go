@@ -39,8 +39,10 @@ func (s *ErrorResponse) SetError(val string) {
 	s.Error = val
 }
 
-func (*ErrorResponse) createItemRes() {}
-func (*ErrorResponse) updateItemRes() {}
+func (*ErrorResponse) createItemRes()            {}
+func (*ErrorResponse) createSubjectRelationRes() {}
+func (*ErrorResponse) createSubjectRes()         {}
+func (*ErrorResponse) updateItemRes()            {}
 
 // ErrorResponseStatusCode wraps ErrorResponse with StatusCode.
 type ErrorResponseStatusCode struct {
@@ -72,6 +74,11 @@ func (s *ErrorResponseStatusCode) SetResponse(val ErrorResponse) {
 type GetItemNotFound struct{}
 
 func (*GetItemNotFound) getItemRes() {}
+
+// GetSubjectNotFound is response for GetSubject operation.
+type GetSubjectNotFound struct{}
+
+func (*GetSubjectNotFound) getSubjectRes() {}
 
 // Ref: #/components/schemas/Item
 type Item struct {
@@ -401,6 +408,224 @@ func (s *PingResponse) GetMessage() string {
 // SetMessage sets the value of Message.
 func (s *PingResponse) SetMessage(val string) {
 	s.Message = val
+}
+
+// Ref: #/components/schemas/Subject
+type Subject struct {
+	ID        int64     `json:"id"`
+	UUID      uuid.UUID `json:"uuid"`
+	CreatedAt time.Time `json:"created_at"`
+	Name      string    `json:"name"`
+}
+
+// GetID returns the value of ID.
+func (s *Subject) GetID() int64 {
+	return s.ID
+}
+
+// GetUUID returns the value of UUID.
+func (s *Subject) GetUUID() uuid.UUID {
+	return s.UUID
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *Subject) GetCreatedAt() time.Time {
+	return s.CreatedAt
+}
+
+// GetName returns the value of Name.
+func (s *Subject) GetName() string {
+	return s.Name
+}
+
+// SetID sets the value of ID.
+func (s *Subject) SetID(val int64) {
+	s.ID = val
+}
+
+// SetUUID sets the value of UUID.
+func (s *Subject) SetUUID(val uuid.UUID) {
+	s.UUID = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *Subject) SetCreatedAt(val time.Time) {
+	s.CreatedAt = val
+}
+
+// SetName sets the value of Name.
+func (s *Subject) SetName(val string) {
+	s.Name = val
+}
+
+// Ref: #/components/schemas/SubjectCreateRequest
+type SubjectCreateRequest struct {
+	Data SubjectIn `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *SubjectCreateRequest) GetData() SubjectIn {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *SubjectCreateRequest) SetData(val SubjectIn) {
+	s.Data = val
+}
+
+// Ref: #/components/schemas/SubjectCreateResponse
+type SubjectCreateResponse struct {
+	Data Subject `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *SubjectCreateResponse) GetData() Subject {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *SubjectCreateResponse) SetData(val Subject) {
+	s.Data = val
+}
+
+func (*SubjectCreateResponse) createSubjectRes() {}
+
+// Ref: #/components/schemas/SubjectGetResponse
+type SubjectGetResponse struct {
+	Data Subject `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *SubjectGetResponse) GetData() Subject {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *SubjectGetResponse) SetData(val Subject) {
+	s.Data = val
+}
+
+func (*SubjectGetResponse) getSubjectRes() {}
+
+// Ref: #/components/schemas/SubjectIn
+type SubjectIn struct {
+	Name string `json:"name"`
+}
+
+// GetName returns the value of Name.
+func (s *SubjectIn) GetName() string {
+	return s.Name
+}
+
+// SetName sets the value of Name.
+func (s *SubjectIn) SetName(val string) {
+	s.Name = val
+}
+
+// Ref: #/components/schemas/SubjectRelation
+type SubjectRelation struct {
+	ID               int64     `json:"id"`
+	CreatedAt        time.Time `json:"created_at"`
+	SubjectID        int64     `json:"subject_id"`
+	RelatedSubjectID int64     `json:"related_subject_id"`
+}
+
+// GetID returns the value of ID.
+func (s *SubjectRelation) GetID() int64 {
+	return s.ID
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *SubjectRelation) GetCreatedAt() time.Time {
+	return s.CreatedAt
+}
+
+// GetSubjectID returns the value of SubjectID.
+func (s *SubjectRelation) GetSubjectID() int64 {
+	return s.SubjectID
+}
+
+// GetRelatedSubjectID returns the value of RelatedSubjectID.
+func (s *SubjectRelation) GetRelatedSubjectID() int64 {
+	return s.RelatedSubjectID
+}
+
+// SetID sets the value of ID.
+func (s *SubjectRelation) SetID(val int64) {
+	s.ID = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *SubjectRelation) SetCreatedAt(val time.Time) {
+	s.CreatedAt = val
+}
+
+// SetSubjectID sets the value of SubjectID.
+func (s *SubjectRelation) SetSubjectID(val int64) {
+	s.SubjectID = val
+}
+
+// SetRelatedSubjectID sets the value of RelatedSubjectID.
+func (s *SubjectRelation) SetRelatedSubjectID(val int64) {
+	s.RelatedSubjectID = val
+}
+
+// Ref: #/components/schemas/SubjectRelationCreateRequest
+type SubjectRelationCreateRequest struct {
+	Data SubjectRelationIn `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *SubjectRelationCreateRequest) GetData() SubjectRelationIn {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *SubjectRelationCreateRequest) SetData(val SubjectRelationIn) {
+	s.Data = val
+}
+
+// Ref: #/components/schemas/SubjectRelationCreateResponse
+type SubjectRelationCreateResponse struct {
+	Data SubjectRelation `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *SubjectRelationCreateResponse) GetData() SubjectRelation {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *SubjectRelationCreateResponse) SetData(val SubjectRelation) {
+	s.Data = val
+}
+
+func (*SubjectRelationCreateResponse) createSubjectRelationRes() {}
+
+// Ref: #/components/schemas/SubjectRelationIn
+type SubjectRelationIn struct {
+	SubjectID        int64 `json:"subject_id"`
+	RelatedSubjectID int64 `json:"related_subject_id"`
+}
+
+// GetSubjectID returns the value of SubjectID.
+func (s *SubjectRelationIn) GetSubjectID() int64 {
+	return s.SubjectID
+}
+
+// GetRelatedSubjectID returns the value of RelatedSubjectID.
+func (s *SubjectRelationIn) GetRelatedSubjectID() int64 {
+	return s.RelatedSubjectID
+}
+
+// SetSubjectID sets the value of SubjectID.
+func (s *SubjectRelationIn) SetSubjectID(val int64) {
+	s.SubjectID = val
+}
+
+// SetRelatedSubjectID sets the value of RelatedSubjectID.
+func (s *SubjectRelationIn) SetRelatedSubjectID(val int64) {
+	s.RelatedSubjectID = val
 }
 
 // UpdateItemNotFound is response for UpdateItem operation.

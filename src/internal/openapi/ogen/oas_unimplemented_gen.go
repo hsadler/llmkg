@@ -22,6 +22,24 @@ func (UnimplementedHandler) CreateItem(ctx context.Context, req *ItemCreateReque
 	return r, ht.ErrNotImplemented
 }
 
+// CreateSubject implements createSubject operation.
+//
+// Creates Subject.
+//
+// POST /subjects
+func (UnimplementedHandler) CreateSubject(ctx context.Context, req *SubjectCreateRequest) (r CreateSubjectRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// CreateSubjectRelation implements createSubjectRelation operation.
+//
+// Creates Subject Relation.
+//
+// POST /subject_relations
+func (UnimplementedHandler) CreateSubjectRelation(ctx context.Context, req *SubjectRelationCreateRequest) (r CreateSubjectRelationRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // DeleteItem implements deleteItem operation.
 //
 // Deletes Item.
@@ -37,6 +55,15 @@ func (UnimplementedHandler) DeleteItem(ctx context.Context, params DeleteItemPar
 //
 // GET /items/{itemId}
 func (UnimplementedHandler) GetItem(ctx context.Context, params GetItemParams) (r GetItemRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetSubject implements getSubject operation.
+//
+// Returns a single Subject by id.
+//
+// GET /subjects/{subjectId}
+func (UnimplementedHandler) GetSubject(ctx context.Context, params GetSubjectParams) (r GetSubjectRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

@@ -125,6 +125,92 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /subjects:
+    post:
+      operationId: createSubject
+      description: Creates Subject.
+      requestBody:
+        description: Subject to create.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubjectCreateRequest'
+      responses:
+        '201':
+          description: Created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubjectCreateResponse'
+        '409':
+          description: Conflict.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        'default':
+          description: Unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /subjects/{subjectId}:
+    get:
+      operationId: getSubject
+      description: Returns a single Subject by id.
+      parameters:
+        - name: subjectId
+          in: path
+          description: Subject ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubjectGetResponse'
+        '404':
+          description: Not found.
+        'default':
+          description: Unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /subject_relations:
+    post:
+      operationId: createSubjectRelation
+      description: Creates Subject Relation.
+      requestBody:
+        description: Subject Relation to create.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubjectRelationCreateRequest'
+      responses:
+        '201':
+          description: Created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubjectRelationCreateResponse'
+        '409':
+          description: Conflict.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        'default':
+          description: Unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /ping:
     get:
       operationId: ping
@@ -145,6 +231,8 @@ paths:
 
 components:
   schemas:
+    # Item schemas
+
     Item:
       type: object
       properties:
@@ -261,6 +349,123 @@ components:
         - data
         - meta
 
+    # Subject schemas
+
+    SubjectIn:
+      type: object
+      properties:
+        name:
+          type: string
+          example: foo
+      required:
+        - name
+
+    Subject:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        uuid:
+          type: string
+          format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440000
+        created_at:
+          type: string
+          format: date-time
+          example: 2021-01-01T00:00:00.000Z
+        name:
+          type: string
+          example: foo
+      required:
+        - id
+        - uuid
+        - created_at
+        - name
+
+    SubjectRelationIn:
+      type: object
+      properties:
+        subject_id:
+          type: integer
+          format: int64
+          example: 1
+        related_subject_id:
+          type: integer
+          format: int64
+          example: 2
+      required:
+        - subject_id
+        - related_subject_id
+
+    SubjectRelation:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        created_at:
+          type: string
+          format: date-time
+          example: 2021-01-01T00:00:00.000Z
+        subject_id:
+          type: integer
+          format: int64
+          example: 1
+        related_subject_id:
+          type: integer
+          format: int64
+          example: 2
+      required:
+        - id
+        - created_at
+        - subject_id
+        - related_subject_id
+
+    SubjectCreateRequest:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/SubjectIn'
+      required:
+        - data
+
+    SubjectCreateResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Subject'
+      required:
+        - data
+
+    SubjectGetResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Subject'
+      required:
+        - data
+
+    SubjectRelationCreateRequest:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/SubjectRelationIn'
+      required:
+        - data
+
+    SubjectRelationCreateResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/SubjectRelation'
+      required:
+        - data
+
+    # Ping schemas
+
     PingResponse:
       type: object
       properties:
@@ -269,6 +474,8 @@ components:
           example: "pong"
       required:
         - message
+
+    # Error schemas
 
     ErrorResponse:
       type: object

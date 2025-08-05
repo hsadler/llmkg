@@ -6,9 +6,12 @@ package ogen
 type OperationName = string
 
 const (
-	CreateItemOperation OperationName = "CreateItem"
-	DeleteItemOperation OperationName = "DeleteItem"
-	GetItemOperation    OperationName = "GetItem"
-	PingOperation       OperationName = "Ping"
-	UpdateItemOperation OperationName = "UpdateItem"
+	CreateItemOperation            OperationName = "CreateItem"
+	CreateSubjectOperation         OperationName = "CreateSubject"
+	CreateSubjectRelationOperation OperationName = "CreateSubjectRelation"
+	DeleteItemOperation            OperationName = "DeleteItem"
+	GetItemOperation               OperationName = "GetItem"
+	GetSubjectOperation            OperationName = "GetSubject"
+	PingOperation                  OperationName = "Ping"
+	UpdateItemOperation            OperationName = "UpdateItem"
 )

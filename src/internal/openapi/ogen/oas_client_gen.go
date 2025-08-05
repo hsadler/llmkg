@@ -34,6 +34,18 @@ type Invoker interface {
 	//
 	// POST /items
 	CreateItem(ctx context.Context, request *ItemCreateRequest) (CreateItemRes, error)
+	// CreateSubject invokes createSubject operation.
+	//
+	// Creates Subject.
+	//
+	// POST /subjects
+	CreateSubject(ctx context.Context, request *SubjectCreateRequest) (CreateSubjectRes, error)
+	// CreateSubjectRelation invokes createSubjectRelation operation.
+	//
+	// Creates Subject Relation.
+	//
+	// POST /subject_relations
+	CreateSubjectRelation(ctx context.Context, request *SubjectRelationCreateRequest) (CreateSubjectRelationRes, error)
 	// DeleteItem invokes deleteItem operation.
 	//
 	// Deletes Item.
@@ -46,6 +58,12 @@ type Invoker interface {
 	//
 	// GET /items/{itemId}
 	GetItem(ctx context.Context, params GetItemParams) (GetItemRes, error)
+	// GetSubject invokes getSubject operation.
+	//
+	// Returns a single Subject by id.
+	//
+	// GET /subjects/{subjectId}
+	GetSubject(ctx context.Context, params GetSubjectParams) (GetSubjectRes, error)
 	// Ping invokes ping operation.
 	//
 	// Check if the service is running.
@@ -175,6 +193,156 @@ func (c *Client) sendCreateItem(ctx context.Context, request *ItemCreateRequest)
 
 	stage = "DecodeResponse"
 	result, err := decodeCreateItemResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// CreateSubject invokes createSubject operation.
+//
+// Creates Subject.
+//
+// POST /subjects
+func (c *Client) CreateSubject(ctx context.Context, request *SubjectCreateRequest) (CreateSubjectRes, error) {
+	res, err := c.sendCreateSubject(ctx, request)
+	return res, err
+}
+
+func (c *Client) sendCreateSubject(ctx context.Context, request *SubjectCreateRequest) (res CreateSubjectRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("createSubject"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/subjects"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, CreateSubjectOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/subjects"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeCreateSubjectRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeCreateSubjectResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// CreateSubjectRelation invokes createSubjectRelation operation.
+//
+// Creates Subject Relation.
+//
+// POST /subject_relations
+func (c *Client) CreateSubjectRelation(ctx context.Context, request *SubjectRelationCreateRequest) (CreateSubjectRelationRes, error) {
+	res, err := c.sendCreateSubjectRelation(ctx, request)
+	return res, err
+}
+
+func (c *Client) sendCreateSubjectRelation(ctx context.Context, request *SubjectRelationCreateRequest) (res CreateSubjectRelationRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("createSubjectRelation"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/subject_relations"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, CreateSubjectRelationOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/subject_relations"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeCreateSubjectRelationRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeCreateSubjectRelationResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -355,6 +523,96 @@ func (c *Client) sendGetItem(ctx context.Context, params GetItemParams) (res Get
 
 	stage = "DecodeResponse"
 	result, err := decodeGetItemResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// GetSubject invokes getSubject operation.
+//
+// Returns a single Subject by id.
+//
+// GET /subjects/{subjectId}
+func (c *Client) GetSubject(ctx context.Context, params GetSubjectParams) (GetSubjectRes, error) {
+	res, err := c.sendGetSubject(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendGetSubject(ctx context.Context, params GetSubjectParams) (res GetSubjectRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("getSubject"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/subjects/{subjectId}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, GetSubjectOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [2]string
+	pathParts[0] = "/subjects/"
+	{
+		// Encode "subjectId" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "subjectId",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.IntToString(params.SubjectId))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeGetSubjectResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}

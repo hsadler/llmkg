@@ -10,7 +10,7 @@ import (
 	"example-server/internal/dependencies"
 	"example-server/internal/models"
 	"example-server/internal/openapi/ogen"
-	itemsrepo "example-server/internal/repos"
+	"example-server/internal/repos"
 )
 
 type ItemsService struct {
@@ -40,7 +40,7 @@ func (s *ItemsService) CreateItem(
 	log.Info().Interface("ItemCreateRequest", req).Msg("Handling item create request")
 	// Insert item
 	itemIn := req.Data
-	item, err := itemsrepo.InsertItem(s.Deps.DBPool, models.ItemIn{
+	item, err := repos.InsertItem(s.Deps.DBPool, models.ItemIn{
 		Name:  itemIn.Name,
 		Price: itemIn.Price,
 	})
@@ -76,7 +76,7 @@ func (s *ItemsService) GetItem(
 	log.Info().Interface("GetItemParams", params).Msg("Handling item get request")
 	// Fetch item
 	itemId := params.ItemId
-	item, err := itemsrepo.FetchItemById(s.Deps.DBPool, itemId)
+	item, err := repos.FetchItemById(s.Deps.DBPool, itemId)
 	if err != nil {
 		log.Error().Err(err).Interface("GetItemParams", params).Msg("Error getting item")
 		return nil, s.NewError(ctx, err)
@@ -111,7 +111,7 @@ func (s *ItemsService) UpdateItem(
 	// Update item
 	itemId := params.ItemId
 	itemIn := req.Data
-	item, err := itemsrepo.UpdateItem(s.Deps.DBPool, itemId, models.ItemIn{
+	item, err := repos.UpdateItem(s.Deps.DBPool, itemId, models.ItemIn{
 		Name:  itemIn.Name,
 		Price: itemIn.Price,
 	})
@@ -147,7 +147,7 @@ func (s *ItemsService) DeleteItem(
 	log.Info().Interface("DeleteItemParams", params).Msg("Handling item delete request")
 	// Delete item
 	itemId := params.ItemId
-	item, err := itemsrepo.DeleteItem(s.Deps.DBPool, itemId)
+	item, err := repos.DeleteItem(s.Deps.DBPool, itemId)
 	if err != nil {
 		log.Error().Err(err).Interface("DeleteItemParams", params).Msg("Error deleting item")
 		return nil, s.NewError(ctx, err)
@@ -155,4 +155,97 @@ func (s *ItemsService) DeleteItem(
 	log.Debug().Interface("item", item).Msg("Item deleted")
 	// Return empty response
 	return &ogen.DeleteItemNoContent{}, nil
+}
+
+func (s *ItemsService) CreateSubject(
+	ctx context.Context,
+	req *ogen.SubjectCreateRequest,
+) (ogen.CreateSubjectRes, error) {
+	log.Info().Interface("SubjectCreateRequest", req).Msg("Handling subject create request")
+	subjectIn := req.Data
+	subject, err := repos.InsertSubject(s.Deps.DBPool, models.SubjectIn{
+		Name: subjectIn.Name,
+	})
+	if err != nil {
+		log.Error().Err(err).Interface("SubjectCreateRequest", req).Msg("Error inserting subject")
+		if err == repos.ErrorSubjectExists {
+			return nil, &ogen.ErrorResponseStatusCode{
+				StatusCode: http.StatusConflict,
+				Response:   ogen.ErrorResponse{Error: err.Error()},
+			}
+		}
+		return nil, s.NewError(ctx, err)
+	}
+	log.Debug().Interface("subject", subject).Msg("Subject created")
+	// Convert models.Subject to ogen.Subject
+	subjectOut := ogen.Subject{
+		ID:        int64(subject.ID),
+		UUID:      uuid.MustParse(subject.UUID),
+		CreatedAt: subject.CreatedAt,
+		Name:      subject.Name,
+	}
+	// Compose and return response
+	return &ogen.SubjectCreateResponse{
+		Data: subjectOut,
+	}, nil
+}
+
+func (s *ItemsService) GetSubject(
+	ctx context.Context,
+	params ogen.GetSubjectParams,
+) (ogen.GetSubjectRes, error) {
+	log.Info().Interface("GetSubjectParams", params).Msg("Handling subject get request")
+	// Fetch subject
+	subjectId := params.SubjectId
+	subject, err := repos.FetchSubjectById(s.Deps.DBPool, subjectId)
+	if err != nil {
+		log.Error().Err(err).Interface("GetSubjectParams", params).Msg("Error getting subject")
+		return nil, s.NewError(ctx, err)
+	}
+	log.Debug().Interface("subject", subject).Msg("Subject fetched")
+	// Convert models.Subject to ogen.Subject
+	subjectOut := ogen.Subject{
+		ID:        int64(subject.ID),
+		UUID:      uuid.MustParse(subject.UUID),
+		CreatedAt: subject.CreatedAt,
+		Name:      subject.Name,
+	}
+	// Compose and return response
+	return &ogen.SubjectGetResponse{
+		Data: subjectOut,
+	}, nil
+}
+
+func (s *ItemsService) CreateSubjectRelation(
+	ctx context.Context,
+	req *ogen.SubjectRelationCreateRequest,
+) (ogen.CreateSubjectRelationRes, error) {
+	log.Info().Interface("SubjectRelationCreateRequest", req).Msg("Handling subject relation create request")
+	subjectRelationIn := req.Data
+	subjectRelation, err := repos.InsertSubjectRelation(s.Deps.DBPool, models.SubjectRelationIn{
+		SubjectID:        int(subjectRelationIn.SubjectID),
+		RelatedSubjectID: int(subjectRelationIn.RelatedSubjectID),
+	})
+	if err != nil {
+		log.Error().Err(err).Msg("Error creating subject relation")
+		if err == repos.ErrorSubjectRelationExists {
+			return nil, &ogen.ErrorResponseStatusCode{
+				StatusCode: http.StatusConflict,
+				Response:   ogen.ErrorResponse{Error: err.Error()},
+			}
+		}
+		return nil, s.NewError(ctx, err)
+	}
+	log.Debug().Interface("subjectRelation", subjectRelation).Msg("Subject relation created")
+	// Convert models.SubjectRelation to ogen.SubjectRelation
+	subjectRelationOut := ogen.SubjectRelation{
+		ID:               int64(subjectRelation.ID),
+		CreatedAt:        subjectRelation.CreatedAt,
+		SubjectID:        int64(subjectRelation.SubjectID),
+		RelatedSubjectID: int64(subjectRelation.RelatedSubjectID),
+	}
+	// Compose and return response
+	return &ogen.SubjectRelationCreateResponse{
+		Data: subjectRelationOut,
+	}, nil
 }

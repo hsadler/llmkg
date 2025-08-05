@@ -1,3 +1,5 @@
+# Application
+
 build:
 	docker compose build
 
@@ -7,6 +9,22 @@ up:
 down:
 	docker compose down
 
+# Database migrations
+
+db-migrate-up:
+	docker compose exec app sh -c \
+	'migrate -path=./migrations -database="$${DATABASE_URL}?sslmode=disable" up'
+
+db-migrate-down-1:
+	docker compose exec app sh -c \
+	'migrate -path=./migrations -database="$${DATABASE_URL}?sslmode=disable" down 1'
+
+db-migrate-down-all:
+	docker compose exec app sh -c \
+	'migrate -path=./migrations -database="$${DATABASE_URL}?sslmode=disable" down -all'
+
+# Cleanup
+
 cleanup-images-volumes:
 	@read -p "Are you sure you want to clean up images and volumes? (yes/no): " answer; \
 	if [ "$$answer" = "yes" ]; then \
@@ -14,17 +32,3 @@ cleanup-images-volumes:
 	else \
 		echo "Cleanup canceled."; \
 	fi
-
-# Database migrations
-
-db-migrate-up:
-	docker compose run app sh -c \
-	'migrate -path=./migrations -database="$${DATABASE_URL}?sslmode=disable" up'
-
-db-migrate-down-1:
-	docker compose run app sh -c \
-	'migrate -path=./migrations -database="$${DATABASE_URL}?sslmode=disable" down 1'
-
-db-migrate-down-all:
-	docker compose run app sh -c \
-	'migrate -path=./migrations -database="$${DATABASE_URL}?sslmode=disable" down -all'
