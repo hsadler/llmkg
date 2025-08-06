@@ -11,12 +11,6 @@ openapi-generate:
 compile-binaries:
 	go build -o ./build/app ./cmd/serverd
 
-testclient:
-	go run cmd/testclientd/testclient.go
-
-test:
-	go test -v ./...
-
 # Cleanup
 
 cleanup-images-volumes:

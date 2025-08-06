@@ -19,6 +19,12 @@ run-subjpopulate:
 	docker compose exec app sh -c \
 	'go run cmd/subjpopulate/main.go'
 
+# Testing
+
+test:
+	docker compose exec app sh -c \
+	'go test -v ./...'
+
 # Database migrations
 
 db-migrate-up:

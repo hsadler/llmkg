@@ -24,7 +24,14 @@ Then add your OpenAI API key to the `.env` file.
 uv sync
 ```
 
-## Run the app
+## Scripts
+
+### Run the LLMKG Streamlit POC
 ```bash
 uv run streamlit run poc_llm_knowledge_graph.py
+```
+
+### Run the LLM subject populator script
+```bash
+uv run python subjpopulate.py
 ```
