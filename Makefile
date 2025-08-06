@@ -1,4 +1,4 @@
-# Application
+# Backend Application
 
 build:
 	docker compose build
@@ -8,6 +8,16 @@ up:
 
 down:
 	docker compose down
+
+# Scripts
+
+run-test-client:
+	docker compose exec app sh -c \
+	'go run cmd/testclient/main.go'
+
+run-subjpopulate:
+	docker compose exec app sh -c \
+	'go run cmd/subjpopulate/main.go'
 
 # Database migrations
 
