@@ -26,7 +26,7 @@ func (UnimplementedHandler) CreateSubject(ctx context.Context, req *SubjectCreat
 //
 // Creates Subject Relation.
 //
-// POST /subject_relations
+// POST /subject-relations
 func (UnimplementedHandler) CreateSubjectRelation(ctx context.Context, req *SubjectRelationCreateRequest) (r CreateSubjectRelationRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
@@ -37,6 +37,15 @@ func (UnimplementedHandler) CreateSubjectRelation(ctx context.Context, req *Subj
 //
 // GET /subjects/{subjectId}
 func (UnimplementedHandler) GetSubject(ctx context.Context, params GetSubjectParams) (r GetSubjectRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetSubjectByName implements getSubjectByName operation.
+//
+// Returns subject by name.
+//
+// GET /subjects
+func (UnimplementedHandler) GetSubjectByName(ctx context.Context, params GetSubjectByNameParams) (r GetSubjectByNameRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

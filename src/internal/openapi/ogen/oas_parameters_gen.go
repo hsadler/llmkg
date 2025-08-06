@@ -80,3 +80,68 @@ func decodeGetSubjectParams(args [1]string, argsEscaped bool, r *http.Request) (
 	}
 	return params, nil
 }
+
+// GetSubjectByNameParams is parameters of getSubjectByName operation.
+type GetSubjectByNameParams struct {
+	// Lookup subject by name.
+	Name OptString
+}
+
+func unpackGetSubjectByNameParams(packed middleware.Parameters) (params GetSubjectByNameParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "name",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Name = v.(OptString)
+		}
+	}
+	return params
+}
+
+func decodeGetSubjectByNameParams(args [0]string, argsEscaped bool, r *http.Request) (params GetSubjectByNameParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	// Decode query: name.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "name",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotNameVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotNameVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Name.SetTo(paramsDotNameVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "name",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}

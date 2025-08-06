@@ -38,7 +38,7 @@ type Invoker interface {
 	//
 	// Creates Subject Relation.
 	//
-	// POST /subject_relations
+	// POST /subject-relations
 	CreateSubjectRelation(ctx context.Context, request *SubjectRelationCreateRequest) (CreateSubjectRelationRes, error)
 	// GetSubject invokes getSubject operation.
 	//
@@ -46,6 +46,12 @@ type Invoker interface {
 	//
 	// GET /subjects/{subjectId}
 	GetSubject(ctx context.Context, params GetSubjectParams) (GetSubjectRes, error)
+	// GetSubjectByName invokes getSubjectByName operation.
+	//
+	// Returns subject by name.
+	//
+	// GET /subjects
+	GetSubjectByName(ctx context.Context, params GetSubjectByNameParams) (GetSubjectByNameRes, error)
 	// Ping invokes ping operation.
 	//
 	// Check if the service is running.
@@ -180,7 +186,7 @@ func (c *Client) sendCreateSubject(ctx context.Context, request *SubjectCreateRe
 //
 // Creates Subject Relation.
 //
-// POST /subject_relations
+// POST /subject-relations
 func (c *Client) CreateSubjectRelation(ctx context.Context, request *SubjectRelationCreateRequest) (CreateSubjectRelationRes, error) {
 	res, err := c.sendCreateSubjectRelation(ctx, request)
 	return res, err
@@ -190,7 +196,7 @@ func (c *Client) sendCreateSubjectRelation(ctx context.Context, request *Subject
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("createSubjectRelation"),
 		semconv.HTTPRequestMethodKey.String("POST"),
-		semconv.HTTPRouteKey.String("/subject_relations"),
+		semconv.HTTPRouteKey.String("/subject-relations"),
 	}
 
 	// Run stopwatch.
@@ -223,7 +229,7 @@ func (c *Client) sendCreateSubjectRelation(ctx context.Context, request *Subject
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [1]string
-	pathParts[0] = "/subject_relations"
+	pathParts[0] = "/subject-relations"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeRequest"
@@ -334,6 +340,99 @@ func (c *Client) sendGetSubject(ctx context.Context, params GetSubjectParams) (r
 
 	stage = "DecodeResponse"
 	result, err := decodeGetSubjectResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// GetSubjectByName invokes getSubjectByName operation.
+//
+// Returns subject by name.
+//
+// GET /subjects
+func (c *Client) GetSubjectByName(ctx context.Context, params GetSubjectByNameParams) (GetSubjectByNameRes, error) {
+	res, err := c.sendGetSubjectByName(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendGetSubjectByName(ctx context.Context, params GetSubjectByNameParams) (res GetSubjectByNameRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("getSubjectByName"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/subjects"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, GetSubjectByNameOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/subjects"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "name" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "name",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.Name.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeGetSubjectByNameResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}

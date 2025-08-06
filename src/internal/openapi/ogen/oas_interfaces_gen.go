@@ -9,6 +9,10 @@ type CreateSubjectRes interface {
 	createSubjectRes()
 }
 
+type GetSubjectByNameRes interface {
+	getSubjectByNameRes()
+}
+
 type GetSubjectRes interface {
 	getSubjectRes()
 }

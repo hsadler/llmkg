@@ -38,6 +38,33 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+    get:
+      operationId: getSubjectByName
+      description: Returns subject by name.
+      parameters:
+        - name: name
+          in: query
+          description: Lookup subject by name.
+          required: false
+          schema:
+            type: string
+            example: "foo"
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubjectGetResponse'
+        '404':
+          description: Not found.
+        'default':
+          description: Unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /subjects/{subjectId}:
     get:
       operationId: getSubject
@@ -64,7 +91,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /subject_relations:
+  /subject-relations:
     post:
       operationId: createSubjectRelation
       description: Creates Subject Relation.

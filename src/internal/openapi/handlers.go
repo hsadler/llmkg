@@ -68,6 +68,59 @@ func (s *LLMKGService) CreateSubject(
 	}, nil
 }
 
+func (s *LLMKGService) GetSubjectByName(
+	ctx context.Context,
+	params ogen.GetSubjectByNameParams,
+) (ogen.GetSubjectByNameRes, error) {
+	log.Info().Interface("GetSubjectByNameParams", params).Msg("Handling subject by name get request")
+	// Fetch subject
+	subjectName, ok := params.Name.Get()
+	if !ok {
+		return nil, &ogen.ErrorResponseStatusCode{
+			StatusCode: http.StatusBadRequest,
+			Response:   ogen.ErrorResponse{Error: "Name is required"},
+		}
+	}
+	subject, err := repos.FetchSubjectByName(s.Deps.DBPool, subjectName)
+	if err != nil {
+		log.Error().Err(err).Interface("GetSubjectByNameParams", params).Msg("Error getting subject")
+		return nil, s.NewError(ctx, err)
+	}
+	// Fetch subject relations
+	subjectToRelations, err := repos.FetchSubjectRelationsBySubjectId(s.Deps.DBPool, subject.ID)
+	if err != nil {
+		log.Error().Err(err).Interface("GetSubjectParams", params).Msg("Error getting subject relations")
+		return nil, s.NewError(ctx, err)
+	}
+	log.Debug().Interface("subjectToRelations", subjectToRelations).Msg("Subject to relations fetched")
+	subjectFromRelations, err := repos.FetchSubjectRelationsByRelatedSubjectId(s.Deps.DBPool, subject.ID)
+	if err != nil {
+		log.Error().Err(err).Interface("GetSubjectParams", params).Msg("Error getting subject relations")
+		return nil, s.NewError(ctx, err)
+	}
+	log.Debug().Interface("subjectFromRelations", subjectFromRelations).Msg("Subject from relations fetched")
+	// Convert models.Subject to ogen.Subject
+	subjectOut := ogen.Subject{
+		ID:                    int64(subject.ID),
+		UUID:                  uuid.MustParse(subject.UUID),
+		CreatedAt:             subject.CreatedAt,
+		Name:                  subject.Name,
+		RelatedToSubjectIds:   []int64{},
+		RelatedFromSubjectIds: []int64{},
+	}
+	// Compose related subject ids
+	for _, subjectRelation := range subjectToRelations {
+		subjectOut.RelatedToSubjectIds = append(subjectOut.RelatedToSubjectIds, int64(subjectRelation.RelatedSubjectID))
+	}
+	for _, subjectRelation := range subjectFromRelations {
+		subjectOut.RelatedFromSubjectIds = append(subjectOut.RelatedFromSubjectIds, int64(subjectRelation.SubjectID))
+	}
+	// Compose and return response
+	return &ogen.SubjectGetResponse{
+		Data: subjectOut,
+	}, nil
+}
+
 func (s *LLMKGService) GetSubject(
 	ctx context.Context,
 	params ogen.GetSubjectParams,

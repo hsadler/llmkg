@@ -1,15 +1,17 @@
 import json
 
 from openai import OpenAI
+from openai.types import ChatModel
 
 
 def fetch_related_subjects(
     openai_client: OpenAI,
+    model_name: ChatModel,
     input_subjects: list[str], 
     num_related_subjects: int, 
 ) -> dict[str, list[str]] | None:
     completion = openai_client.chat.completions.create(
-        model="gpt-3.5-turbo",
+        model=model_name,
         n=1,
         messages=[
             {

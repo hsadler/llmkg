@@ -70,8 +70,8 @@ http GET localhost:8000/subjects/1
 http GET localhost:8000/subjects/2
 http GET localhost:8000/subjects/3
 
-http POST localhost:8000/subject_relations data:='{"subject_id": 1, "related_subject_id": 2}'
-http POST localhost:8000/subject_relations data:='{"subject_id": 2, "related_subject_id": 3}'
+http POST localhost:8000/subject-relations data:='{"subject_id": 1, "related_subject_id": 2}'
+http POST localhost:8000/subject-relations data:='{"subject_id": 2, "related_subject_id": 3}'
 
 http GET localhost:8000/subjects/1
 http GET localhost:8000/subjects/2

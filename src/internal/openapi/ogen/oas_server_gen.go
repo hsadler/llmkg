@@ -18,7 +18,7 @@ type Handler interface {
 	//
 	// Creates Subject Relation.
 	//
-	// POST /subject_relations
+	// POST /subject-relations
 	CreateSubjectRelation(ctx context.Context, req *SubjectRelationCreateRequest) (CreateSubjectRelationRes, error)
 	// GetSubject implements getSubject operation.
 	//
@@ -26,6 +26,12 @@ type Handler interface {
 	//
 	// GET /subjects/{subjectId}
 	GetSubject(ctx context.Context, params GetSubjectParams) (GetSubjectRes, error)
+	// GetSubjectByName implements getSubjectByName operation.
+	//
+	// Returns subject by name.
+	//
+	// GET /subjects
+	GetSubjectByName(ctx context.Context, params GetSubjectByNameParams) (GetSubjectByNameRes, error)
 	// Ping implements ping operation.
 	//
 	// Check if the service is running.

@@ -93,9 +93,9 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					break
 				}
 				switch elem[0] {
-				case '_': // Prefix: "_relations"
+				case '-': // Prefix: "-relations"
 
-					if l := len("_relations"); len(elem) >= l && elem[0:l] == "_relations" {
+					if l := len("-relations"); len(elem) >= l && elem[0:l] == "-relations" {
 						elem = elem[l:]
 					} else {
 						break
@@ -123,10 +123,12 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 					if len(elem) == 0 {
 						switch r.Method {
+						case "GET":
+							s.handleGetSubjectByNameRequest([0]string{}, elemIsEscaped, w, r)
 						case "POST":
 							s.handleCreateSubjectRequest([0]string{}, elemIsEscaped, w, r)
 						default:
-							s.notAllowed(w, r, "POST")
+							s.notAllowed(w, r, "GET,POST")
 						}
 
 						return
@@ -297,9 +299,9 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					break
 				}
 				switch elem[0] {
-				case '_': // Prefix: "_relations"
+				case '-': // Prefix: "-relations"
 
-					if l := len("_relations"); len(elem) >= l && elem[0:l] == "_relations" {
+					if l := len("-relations"); len(elem) >= l && elem[0:l] == "-relations" {
 						elem = elem[l:]
 					} else {
 						break
@@ -312,7 +314,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							r.name = CreateSubjectRelationOperation
 							r.summary = ""
 							r.operationID = "createSubjectRelation"
-							r.pathPattern = "/subject_relations"
+							r.pathPattern = "/subject-relations"
 							r.args = args
 							r.count = 0
 							return r, true
@@ -331,6 +333,14 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 
 					if len(elem) == 0 {
 						switch method {
+						case "GET":
+							r.name = GetSubjectByNameOperation
+							r.summary = ""
+							r.operationID = "getSubjectByName"
+							r.pathPattern = "/subjects"
+							r.args = args
+							r.count = 0
+							return r, true
 						case "POST":
 							r.name = CreateSubjectOperation
 							r.summary = ""

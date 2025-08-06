@@ -66,6 +66,25 @@ func FetchSubjectById(dbPool database.PgxPoolIface, subjectId int) (*models.Subj
 	return &subject, nil
 }
 
+func FetchSubjectByName(dbPool database.PgxPoolIface, subjectName string) (*models.Subject, error) {
+	// Fetch Subject by Name
+	var subject models.Subject
+	err := dbPool.QueryRow(
+		context.Background(),
+		"SELECT id, uuid, created_at, name FROM subject WHERE name = $1",
+		subjectName,
+	).Scan(&subject.ID, &subject.UUID, &subject.CreatedAt, &subject.Name)
+	// Handle Subject fetch error
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrorSubjectNotFound
+		}
+		logger.LogErrorWithStacktrace(err, "Error querying Subject")
+		return nil, ErrorSubjectQuery
+	}
+	return &subject, nil
+}
+
 // Subject Relation
 
 func InsertSubjectRelation(

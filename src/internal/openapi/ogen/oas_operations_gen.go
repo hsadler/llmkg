@@ -9,5 +9,6 @@ const (
 	CreateSubjectOperation         OperationName = "CreateSubject"
 	CreateSubjectRelationOperation OperationName = "CreateSubjectRelation"
 	GetSubjectOperation            OperationName = "GetSubject"
+	GetSubjectByNameOperation      OperationName = "GetSubjectByName"
 	PingOperation                  OperationName = "Ping"
 )
