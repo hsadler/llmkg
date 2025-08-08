@@ -11,4 +11,5 @@ const (
 	GetSubjectOperation            OperationName = "GetSubject"
 	GetSubjectByNameOperation      OperationName = "GetSubjectByName"
 	PingOperation                  OperationName = "Ping"
+	TruncateTablesOperation        OperationName = "TruncateTables"
 )

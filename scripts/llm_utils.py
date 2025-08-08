@@ -2,6 +2,7 @@ import json
 
 from openai import OpenAI
 from openai.types import ChatModel
+from pydantic import BaseModel
 
 
 def fetch_related_subjects(
@@ -28,6 +29,9 @@ def fetch_related_subjects(
                     would be: \
                     {"computing": ["programming", "algorithms", "data structures"], \
                     "cooking": ["baking", "grilling", "sous vide"]} \
+                    \n \
+                    Keep all strings in the response to 100 characters or less and lowercase. \
+                    Do not include any other text in the response. \
                 '''
             },
             {
@@ -46,3 +50,45 @@ def fetch_related_subjects(
     except json.JSONDecodeError:
         print(f"Invalid JSON response from the model: {completion_content}")
         return None
+
+
+class SubjectToRelatedSubjects(BaseModel):
+    subject_name: str
+    related_subject_names: list[str]
+
+
+class RelatedSubjectsResponse(BaseModel):
+    data: list[SubjectToRelatedSubjects]
+
+
+def fetch_related_subjects_new(
+    openai_client: OpenAI,
+    model_name: ChatModel,
+    input_subjects: list[str], 
+    num_related_subjects: int, 
+) -> list[SubjectToRelatedSubjects] | None:
+    completion = openai_client.chat.completions.parse(
+        model=model_name,
+        n=1,
+        messages=[
+            {
+                "role": "system", 
+                "content": '''
+                    You are a constructor of knowledge graphs. \
+                    The nodes are subjects and the edges are related subjects. \
+                    Each subject or related subject should be a simple human readable string. \
+                    Keep all strings in the response to 100 characters or less and lowercase. \
+                '''
+            },
+            {
+                "role": "user", 
+                "content": f'''
+                    Give me {num_related_subjects} related subjects for each \
+                    subject in the list: {input_subjects} \
+                '''
+            },
+        ],
+        response_format=RelatedSubjectsResponse
+    )
+    related_subjects_response: RelatedSubjectsResponse = completion.choices[0].message.parsed
+    return related_subjects_response.data

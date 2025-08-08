@@ -368,3 +368,6 @@ func (s *SubjectRelationIn) SetSubjectID(val int64) {
 func (s *SubjectRelationIn) SetRelatedSubjectID(val int64) {
 	s.RelatedSubjectID = val
 }
+
+// TruncateTablesOK is response for TruncateTables operation.
+type TruncateTablesOK struct{}

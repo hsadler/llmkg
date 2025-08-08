@@ -58,6 +58,15 @@ func (UnimplementedHandler) Ping(ctx context.Context) (r *PingResponse, _ error)
 	return r, ht.ErrNotImplemented
 }
 
+// TruncateTables implements truncateTables operation.
+//
+// Truncates all tables.
+//
+// POST /truncate-tables
+func (UnimplementedHandler) TruncateTables(ctx context.Context) error {
+	return ht.ErrNotImplemented
+}
+
 // NewError creates *ErrorResponseStatusCode from error returned by handler.
 //
 // Used for common default response.

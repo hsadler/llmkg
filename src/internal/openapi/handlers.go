@@ -202,3 +202,16 @@ func (s *LLMKGService) CreateSubjectRelation(
 		Data: subjectRelationOut,
 	}, nil
 }
+
+func (s *LLMKGService) TruncateTables(
+	ctx context.Context,
+) error {
+	log.Info().Msg("Handling truncate tables request")
+	err := repos.TruncateTables(s.Deps.DBPool)
+	if err != nil {
+		log.Error().Err(err).Msg("Error truncating tables")
+		return s.NewError(ctx, err)
+	}
+	log.Info().Msg("Tables truncated")
+	return nil
+}

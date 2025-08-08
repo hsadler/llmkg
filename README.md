@@ -76,4 +76,7 @@ http POST localhost:8000/subject-relations data:='{"subject_id": 2, "related_sub
 http GET localhost:8000/subjects/1
 http GET localhost:8000/subjects/2
 http GET localhost:8000/subjects/3
+
+# Truncate tables
+http POST localhost:8000/truncate-tables
 ```

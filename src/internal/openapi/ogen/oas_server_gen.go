@@ -38,6 +38,12 @@ type Handler interface {
 	//
 	// GET /ping
 	Ping(ctx context.Context) (*PingResponse, error)
+	// TruncateTables implements truncateTables operation.
+	//
+	// Truncates all tables.
+	//
+	// POST /truncate-tables
+	TruncateTables(ctx context.Context) error
 	// NewError creates *ErrorResponseStatusCode from error returned by handler.
 	//
 	// Used for common default response.

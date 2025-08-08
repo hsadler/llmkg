@@ -22,6 +22,20 @@ var (
 	ErrorSubjectRelationQuery  = errors.New("Error querying Subject Relation")
 )
 
+func TruncateTables(dbPool database.PgxPoolIface) error {
+	_, err := dbPool.Exec(context.Background(), "TRUNCATE TABLE subject")
+	if err != nil {
+		logger.LogErrorWithStacktrace(err, "Error truncating subject table")
+		return err
+	}
+	_, err = dbPool.Exec(context.Background(), "TRUNCATE TABLE subject_relation")
+	if err != nil {
+		logger.LogErrorWithStacktrace(err, "Error truncating subject_relation table")
+		return err
+	}
+	return nil
+}
+
 // Subject
 
 func InsertSubject(dbPool database.PgxPoolIface, subjectIn models.SubjectIn) (*models.Subject, error) {

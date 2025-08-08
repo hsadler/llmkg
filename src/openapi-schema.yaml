@@ -121,6 +121,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /truncate-tables:
+    post:
+      operationId: truncateTables
+      description: Truncates all tables.
+      responses:
+        '200':
+          description: OK.
+        'default':
+          description: Unexpected error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /ping:
     get:
       operationId: ping

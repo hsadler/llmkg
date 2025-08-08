@@ -169,6 +169,26 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 				}
 
+			case 't': // Prefix: "truncate-tables"
+
+				if l := len("truncate-tables"); len(elem) >= l && elem[0:l] == "truncate-tables" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					// Leaf node.
+					switch r.Method {
+					case "POST":
+						s.handleTruncateTablesRequest([0]string{}, elemIsEscaped, w, r)
+					default:
+						s.notAllowed(w, r, "POST")
+					}
+
+					return
+				}
+
 			}
 
 		}
@@ -389,6 +409,30 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 
 					}
 
+				}
+
+			case 't': // Prefix: "truncate-tables"
+
+				if l := len("truncate-tables"); len(elem) >= l && elem[0:l] == "truncate-tables" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					// Leaf node.
+					switch method {
+					case "POST":
+						r.name = TruncateTablesOperation
+						r.summary = ""
+						r.operationID = "truncateTables"
+						r.pathPattern = "/truncate-tables"
+						r.args = args
+						r.count = 0
+						return r, true
+					default:
+						return
+					}
 				}
 
 			}
