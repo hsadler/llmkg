@@ -106,15 +106,22 @@ func (s *LLMKGService) CreateSubjectRelation(
 	req *ogen.SubjectRelationCreateRequest,
 ) (ogen.CreateSubjectRelationRes, error) {
 	log.Info().Interface("SubjectRelationCreateRequest", req).Msg("Handling subject relation create request")
-	// TODO: Implement Neo4j query
-	// MOCK DATA
-	subjectRelationOut := ogen.SubjectRelation{
-		SubjectID:        "4:16987f9f-8033-4cd6-a7c6-94493f1f20ba:12",
-		RelatedSubjectID: "4:16987f9f-8033-4cd6-a7c6-94493f1f20ba:12",
+	subjectRelationIn := req.Data
+	subjectRelationOut, err := repos.CreateSubjectRelation(
+		s.Deps.Neo4jDriver,
+		subjectRelationIn.SubjectID,
+		subjectRelationIn.RelatedSubjectID,
+	)
+	if err != nil {
+		log.Error().Err(err).Interface("SubjectRelationCreateRequest", req).Msg("Error creating subject relation")
+		return nil, s.NewError(ctx, err)
 	}
-	// Compose and return response
+	log.Debug().Interface("subjectRelationOut", subjectRelationOut).Msg("Subject relation created")
 	return &ogen.SubjectRelationCreateResponse{
-		Data: subjectRelationOut,
+		Data: ogen.SubjectRelation{
+			SubjectID:        subjectRelationOut.SubjectID,
+			RelatedSubjectID: subjectRelationOut.RelatedSubjectID,
+		},
 	}, nil
 }
 
@@ -122,7 +129,7 @@ func (s *LLMKGService) TruncateTables(
 	ctx context.Context,
 ) error {
 	log.Info().Msg("Handling truncate tables request")
-	err := repos.TruncateTables(s.Deps.DBPool)
+	err := repos.TruncateNeo4j(s.Deps.Neo4jDriver)
 	if err != nil {
 		log.Error().Err(err).Msg("Error truncating tables")
 		return s.NewError(ctx, err)

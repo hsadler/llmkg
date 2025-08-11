@@ -33,9 +33,9 @@ func (UnimplementedHandler) CreateSubjectRelation(ctx context.Context, req *Subj
 
 // GetSubject implements getSubject operation.
 //
-// Returns a single Subject by uuid.
+// Returns a single Subject by id.
 //
-// GET /subjects/{subjectUuid}
+// GET /subjects/{subjectId}
 func (UnimplementedHandler) GetSubject(ctx context.Context, params GetSubjectParams) (r GetSubjectRes, _ error) {
 	return r, ht.ErrNotImplemented
 }

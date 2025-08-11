@@ -8,7 +8,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 
-	"example-server/internal/database"
 	"example-server/internal/logger"
 	"example-server/internal/models"
 )
@@ -21,17 +20,26 @@ var (
 	ErrorCreateSubjectRelation = errors.New("Error creating Subject Relation")
 	ErrorSubjectRelationExists = errors.New("Subject Relation already exists")
 	ErrorSubjectRelationQuery  = errors.New("Error querying Subject Relation")
+	RelationshipRelatedTo      = "RELATED_TO"
 )
 
-func TruncateTables(dbPool database.PgxPoolIface) error {
-	_, err := dbPool.Exec(context.Background(), "TRUNCATE TABLE subject")
+func TruncateNeo4j(driver neo4j.DriverWithContext) error {
+	session := driver.NewSession(context.Background(), neo4j.SessionConfig{
+		AccessMode: neo4j.AccessModeWrite,
+	})
+	defer session.Close(context.Background())
+	// Truncate all nodes
+	query := "MATCH (n) DETACH DELETE n"
+	_, err := session.Run(context.Background(), query, nil)
 	if err != nil {
-		logger.LogErrorWithStacktrace(err, "Error truncating subject table")
+		logger.LogErrorWithStacktrace(err, "Error truncating Neo4j nodes")
 		return err
 	}
-	_, err = dbPool.Exec(context.Background(), "TRUNCATE TABLE subject_relation")
+	// Truncate all relationships
+	query = "MATCH ()-[r]-() DELETE r"
+	_, err = session.Run(context.Background(), query, nil)
 	if err != nil {
-		logger.LogErrorWithStacktrace(err, "Error truncating subject_relation table")
+		logger.LogErrorWithStacktrace(err, "Error truncating Neo4j relationships")
 		return err
 	}
 	return nil
@@ -55,6 +63,7 @@ func CreateSubjectNode(driver neo4j.DriverWithContext, subjectName string) (*mod
 		logger.LogErrorWithStacktrace(err, "Error creating Subject Node")
 		return nil, err
 	}
+	// Move to the next record
 	if !result.Next(context.Background()) {
 		// Check for errors
 		if err = result.Err(); err != nil {
@@ -63,6 +72,7 @@ func CreateSubjectNode(driver neo4j.DriverWithContext, subjectName string) (*mod
 		}
 		return nil, errors.New("No record returned")
 	}
+	// Get the record
 	record := result.Record()
 	if record == nil {
 		return nil, errors.New("No record returned")
@@ -76,6 +86,52 @@ func CreateSubjectNode(driver neo4j.DriverWithContext, subjectName string) (*mod
 	}
 	return subject, nil
 }
+
+func CreateSubjectRelation(
+	driver neo4j.DriverWithContext,
+	subjectID string,
+	relatedSubjectID string,
+) (*models.SubjectRelation, error) {
+	session := driver.NewSession(context.Background(), neo4j.SessionConfig{
+		AccessMode: neo4j.AccessModeWrite,
+	})
+	defer session.Close(context.Background())
+	// Create Subject Relation
+	query := fmt.Sprintf(
+		"CREATE (s:Subject {id: '%s'}), (r:Subject {id: '%s'}) CREATE (s)-[:%s]->(r) RETURN s, r",
+		subjectID,
+		relatedSubjectID,
+		RelationshipRelatedTo,
+	)
+	result, err := session.Run(context.Background(), query, nil)
+	if err != nil {
+		logger.LogErrorWithStacktrace(err, "Error creating Subject Relation")
+		return nil, err
+	}
+	// Move to the next record
+	if !result.Next(context.Background()) {
+		// Check for errors
+		if err = result.Err(); err != nil {
+			logger.LogErrorWithStacktrace(err, "Error reading result")
+			return nil, err
+		}
+		return nil, errors.New("No record returned")
+	}
+	// Get the record
+	record := result.Record()
+	if record == nil {
+		return nil, errors.New("No record returned")
+	}
+	log.Debug().Interface("record", record).Msg("Subject relation created")
+	subjectRelation, err := recordToSubjectRelation(record)
+	if err != nil {
+		logger.LogErrorWithStacktrace(err, "Error converting record to Subject Relation")
+		return nil, err
+	}
+	return subjectRelation, nil
+}
+
+// Helpers
 
 func recordToSubject(record *neo4j.Record) (*models.Subject, error) {
 	// Get the node from the record (assuming it's returned as 'n')
@@ -104,4 +160,30 @@ func recordToSubject(record *neo4j.Record) (*models.Subject, error) {
 		ID:   node.ElementId,
 		Name: name,
 	}, nil
+}
+
+func recordToSubjectRelation(record *neo4j.Record) (*models.SubjectRelation, error) {
+	// Get the node from the record (assuming it's returned as 'n')
+	subj, found := record.Get("s")
+	if !found {
+		return nil, errors.New("Subject 's' not found in record")
+	}
+	subjNode, ok := subj.(neo4j.Node)
+	if !ok {
+		return nil, errors.New("Value is not a Neo4j Node")
+	}
+	relatedSubj, found := record.Get("r")
+	if !found {
+		return nil, errors.New("Related subject 'r' not found in record")
+	}
+	relatedSubjNode, ok := relatedSubj.(neo4j.Node)
+	if !ok {
+		return nil, errors.New("Value is not a Neo4j Node")
+	}
+	// Instantiate models.SubjectRelation
+	subjectRelation := &models.SubjectRelation{
+		SubjectID:        subjNode.ElementId,
+		RelatedSubjectID: relatedSubjNode.ElementId,
+	}
+	return subjectRelation, nil
 }

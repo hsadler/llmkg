@@ -330,16 +330,16 @@ func (s *Server) handleCreateSubjectRelationRequest(args [0]string, argsEscaped 
 
 // handleGetSubjectRequest handles getSubject operation.
 //
-// Returns a single Subject by uuid.
+// Returns a single Subject by id.
 //
-// GET /subjects/{subjectUuid}
+// GET /subjects/{subjectId}
 func (s *Server) handleGetSubjectRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getSubject"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/subjects/{subjectUuid}"),
+		semconv.HTTPRouteKey.String("/subjects/{subjectId}"),
 	}
 
 	// Start a span for this request.
@@ -423,9 +423,9 @@ func (s *Server) handleGetSubjectRequest(args [1]string, argsEscaped bool, w htt
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "subjectUuid",
+					Name: "subjectId",
 					In:   "path",
-				}: params.SubjectUuid,
+				}: params.SubjectId,
 			},
 			Raw: r,
 		}

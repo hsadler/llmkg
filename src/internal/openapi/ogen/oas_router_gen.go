@@ -142,7 +142,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 							break
 						}
 
-						// Param: "subjectUuid"
+						// Param: "subjectId"
 						// Leaf parameter, slashes are prohibited
 						idx := strings.IndexByte(elem, '/')
 						if idx >= 0 {
@@ -382,7 +382,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							break
 						}
 
-						// Param: "subjectUuid"
+						// Param: "subjectId"
 						// Leaf parameter, slashes are prohibited
 						idx := strings.IndexByte(elem, '/')
 						if idx >= 0 {
@@ -398,7 +398,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								r.name = GetSubjectOperation
 								r.summary = ""
 								r.operationID = "getSubject"
-								r.pathPattern = "/subjects/{subjectUuid}"
+								r.pathPattern = "/subjects/{subjectId}"
 								r.args = args
 								r.count = 1
 								return r, true

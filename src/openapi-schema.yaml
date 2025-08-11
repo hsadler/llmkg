@@ -65,19 +65,19 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /subjects/{subjectUuid}:
+  /subjects/{subjectId}:
     get:
       operationId: getSubject
-      description: Returns a single Subject by uuid.
+      description: Returns a single Subject by id.
       parameters:
-        - name: subjectUuid
+        - name: subjectId
           in: path
-          description: Subject UUID
+          description: Subject ID
           required: true
           schema:
             type: string
-            format: uuid
-            example: "550e8400-e29b-41d4-a716-446655440000"
+            format: string
+            example: "4:16987f9f-8033-4cd6-a7c6-94493f1f20ba:12"
       responses:
         '200':
           description: OK.
