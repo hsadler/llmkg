@@ -7,6 +7,7 @@ import (
 	"net/url"
 
 	"github.com/go-faster/errors"
+	"github.com/google/uuid"
 
 	"github.com/ogen-go/ogen/conv"
 	"github.com/ogen-go/ogen/middleware"
@@ -17,23 +18,23 @@ import (
 
 // GetSubjectParams is parameters of getSubject operation.
 type GetSubjectParams struct {
-	// Subject ID.
-	SubjectId int
+	// Subject UUID.
+	SubjectUuid uuid.UUID
 }
 
 func unpackGetSubjectParams(packed middleware.Parameters) (params GetSubjectParams) {
 	{
 		key := middleware.ParameterKey{
-			Name: "subjectId",
+			Name: "subjectUuid",
 			In:   "path",
 		}
-		params.SubjectId = packed[key].(int)
+		params.SubjectUuid = packed[key].(uuid.UUID)
 	}
 	return params
 }
 
 func decodeGetSubjectParams(args [1]string, argsEscaped bool, r *http.Request) (params GetSubjectParams, _ error) {
-	// Decode path: subjectId.
+	// Decode path: subjectUuid.
 	if err := func() error {
 		param := args[0]
 		if argsEscaped {
@@ -45,7 +46,7 @@ func decodeGetSubjectParams(args [1]string, argsEscaped bool, r *http.Request) (
 		}
 		if len(param) > 0 {
 			d := uri.NewPathDecoder(uri.PathDecoderConfig{
-				Param:   "subjectId",
+				Param:   "subjectUuid",
 				Value:   param,
 				Style:   uri.PathStyleSimple,
 				Explode: false,
@@ -57,12 +58,12 @@ func decodeGetSubjectParams(args [1]string, argsEscaped bool, r *http.Request) (
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToUUID(val)
 				if err != nil {
 					return err
 				}
 
-				params.SubjectId = c
+				params.SubjectUuid = c
 				return nil
 			}(); err != nil {
 				return err
@@ -73,7 +74,7 @@ func decodeGetSubjectParams(args [1]string, argsEscaped bool, r *http.Request) (
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "subjectId",
+			Name: "subjectUuid",
 			In:   "path",
 			Err:  err,
 		}

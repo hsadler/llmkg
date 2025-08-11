@@ -9,7 +9,6 @@ import (
 	"github.com/go-faster/errors"
 	"github.com/go-faster/jx"
 
-	"github.com/ogen-go/ogen/json"
 	"github.com/ogen-go/ogen/validate"
 )
 
@@ -216,15 +215,7 @@ func (s *Subject) Encode(e *jx.Encoder) {
 func (s *Subject) encodeFields(e *jx.Encoder) {
 	{
 		e.FieldStart("id")
-		e.Int64(s.ID)
-	}
-	{
-		e.FieldStart("uuid")
-		json.EncodeUUID(e, s.UUID)
-	}
-	{
-		e.FieldStart("created_at")
-		json.EncodeDateTime(e, s.CreatedAt)
+		e.Str(s.ID)
 	}
 	{
 		e.FieldStart("name")
@@ -234,7 +225,7 @@ func (s *Subject) encodeFields(e *jx.Encoder) {
 		e.FieldStart("related_to_subject_ids")
 		e.ArrStart()
 		for _, elem := range s.RelatedToSubjectIds {
-			e.Int64(elem)
+			e.Str(elem)
 		}
 		e.ArrEnd()
 	}
@@ -242,19 +233,17 @@ func (s *Subject) encodeFields(e *jx.Encoder) {
 		e.FieldStart("related_from_subject_ids")
 		e.ArrStart()
 		for _, elem := range s.RelatedFromSubjectIds {
-			e.Int64(elem)
+			e.Str(elem)
 		}
 		e.ArrEnd()
 	}
 }
 
-var jsonFieldsNameOfSubject = [6]string{
+var jsonFieldsNameOfSubject = [4]string{
 	0: "id",
-	1: "uuid",
-	2: "created_at",
-	3: "name",
-	4: "related_to_subject_ids",
-	5: "related_from_subject_ids",
+	1: "name",
+	2: "related_to_subject_ids",
+	3: "related_from_subject_ids",
 }
 
 // Decode decodes Subject from json.
@@ -269,8 +258,8 @@ func (s *Subject) Decode(d *jx.Decoder) error {
 		case "id":
 			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				v, err := d.Int64()
-				s.ID = int64(v)
+				v, err := d.Str()
+				s.ID = string(v)
 				if err != nil {
 					return err
 				}
@@ -278,32 +267,8 @@ func (s *Subject) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"id\"")
 			}
-		case "uuid":
-			requiredBitSet[0] |= 1 << 1
-			if err := func() error {
-				v, err := json.DecodeUUID(d)
-				s.UUID = v
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"uuid\"")
-			}
-		case "created_at":
-			requiredBitSet[0] |= 1 << 2
-			if err := func() error {
-				v, err := json.DecodeDateTime(d)
-				s.CreatedAt = v
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"created_at\"")
-			}
 		case "name":
-			requiredBitSet[0] |= 1 << 3
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
 				v, err := d.Str()
 				s.Name = string(v)
@@ -315,13 +280,13 @@ func (s *Subject) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"name\"")
 			}
 		case "related_to_subject_ids":
-			requiredBitSet[0] |= 1 << 4
+			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
-				s.RelatedToSubjectIds = make([]int64, 0)
+				s.RelatedToSubjectIds = make([]string, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem int64
-					v, err := d.Int64()
-					elem = int64(v)
+					var elem string
+					v, err := d.Str()
+					elem = string(v)
 					if err != nil {
 						return err
 					}
@@ -335,13 +300,13 @@ func (s *Subject) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"related_to_subject_ids\"")
 			}
 		case "related_from_subject_ids":
-			requiredBitSet[0] |= 1 << 5
+			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
-				s.RelatedFromSubjectIds = make([]int64, 0)
+				s.RelatedFromSubjectIds = make([]string, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem int64
-					v, err := d.Int64()
-					elem = int64(v)
+					var elem string
+					v, err := d.Str()
+					elem = string(v)
 					if err != nil {
 						return err
 					}
@@ -364,7 +329,7 @@ func (s *Subject) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00111111,
+		0b00001111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -798,28 +763,18 @@ func (s *SubjectRelation) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *SubjectRelation) encodeFields(e *jx.Encoder) {
 	{
-		e.FieldStart("id")
-		e.Int64(s.ID)
-	}
-	{
-		e.FieldStart("created_at")
-		json.EncodeDateTime(e, s.CreatedAt)
-	}
-	{
 		e.FieldStart("subject_id")
-		e.Int64(s.SubjectID)
+		e.Str(s.SubjectID)
 	}
 	{
 		e.FieldStart("related_subject_id")
-		e.Int64(s.RelatedSubjectID)
+		e.Str(s.RelatedSubjectID)
 	}
 }
 
-var jsonFieldsNameOfSubjectRelation = [4]string{
-	0: "id",
-	1: "created_at",
-	2: "subject_id",
-	3: "related_subject_id",
+var jsonFieldsNameOfSubjectRelation = [2]string{
+	0: "subject_id",
+	1: "related_subject_id",
 }
 
 // Decode decodes SubjectRelation from json.
@@ -831,35 +786,11 @@ func (s *SubjectRelation) Decode(d *jx.Decoder) error {
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
-		case "id":
+		case "subject_id":
 			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				v, err := d.Int64()
-				s.ID = int64(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"id\"")
-			}
-		case "created_at":
-			requiredBitSet[0] |= 1 << 1
-			if err := func() error {
-				v, err := json.DecodeDateTime(d)
-				s.CreatedAt = v
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"created_at\"")
-			}
-		case "subject_id":
-			requiredBitSet[0] |= 1 << 2
-			if err := func() error {
-				v, err := d.Int64()
-				s.SubjectID = int64(v)
+				v, err := d.Str()
+				s.SubjectID = string(v)
 				if err != nil {
 					return err
 				}
@@ -868,10 +799,10 @@ func (s *SubjectRelation) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"subject_id\"")
 			}
 		case "related_subject_id":
-			requiredBitSet[0] |= 1 << 3
+			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
-				v, err := d.Int64()
-				s.RelatedSubjectID = int64(v)
+				v, err := d.Str()
+				s.RelatedSubjectID = string(v)
 				if err != nil {
 					return err
 				}
@@ -889,7 +820,7 @@ func (s *SubjectRelation) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00001111,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -1134,11 +1065,11 @@ func (s *SubjectRelationIn) Encode(e *jx.Encoder) {
 func (s *SubjectRelationIn) encodeFields(e *jx.Encoder) {
 	{
 		e.FieldStart("subject_id")
-		e.Int64(s.SubjectID)
+		e.Str(s.SubjectID)
 	}
 	{
 		e.FieldStart("related_subject_id")
-		e.Int64(s.RelatedSubjectID)
+		e.Str(s.RelatedSubjectID)
 	}
 }
 
@@ -1159,8 +1090,8 @@ func (s *SubjectRelationIn) Decode(d *jx.Decoder) error {
 		case "subject_id":
 			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				v, err := d.Int64()
-				s.SubjectID = int64(v)
+				v, err := d.Str()
+				s.SubjectID = string(v)
 				if err != nil {
 					return err
 				}
@@ -1171,8 +1102,8 @@ func (s *SubjectRelationIn) Decode(d *jx.Decoder) error {
 		case "related_subject_id":
 			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
-				v, err := d.Int64()
-				s.RelatedSubjectID = int64(v)
+				v, err := d.Str()
+				s.RelatedSubjectID = string(v)
 				if err != nil {
 					return err
 				}

@@ -9,6 +9,7 @@ import (
 	"example-server/internal/openapi/ogen"
 
 	"github.com/fatih/color"
+	"github.com/google/uuid"
 )
 
 func timeId() int64 {
@@ -62,7 +63,7 @@ func testCreateSubject(ctx context.Context, client *ogen.Client) error {
 
 func testGetSubject(ctx context.Context, client *ogen.Client) error {
 	resp, err := client.GetSubject(ctx, ogen.GetSubjectParams{
-		SubjectId: 1,
+		SubjectUuid: uuid.MustParse("550e8400-e29b-41d4-a716-446655440000"),
 	})
 	if err != nil {
 		color.New(color.FgRed).Println(err)
@@ -82,7 +83,7 @@ func testCreateSubjectRelation(ctx context.Context, client *ogen.Client) error {
 		color.New(color.FgRed).Println(err)
 		return err
 	}
-	subjectIdA := createSubjectRes.(*ogen.SubjectCreateResponse).Data.ID
+	subjectUuidA := createSubjectRes.(*ogen.SubjectCreateResponse).Data.ID
 	createSubjectRes, err = client.CreateSubject(ctx, &ogen.SubjectCreateRequest{
 		Data: ogen.SubjectIn{
 			Name: fmt.Sprintf("Subject-%d", timeId()),
@@ -92,11 +93,11 @@ func testCreateSubjectRelation(ctx context.Context, client *ogen.Client) error {
 		color.New(color.FgRed).Println(err)
 		return err
 	}
-	subjectIdB := createSubjectRes.(*ogen.SubjectCreateResponse).Data.ID
+	subjectUuidB := createSubjectRes.(*ogen.SubjectCreateResponse).Data.ID
 	req := &ogen.SubjectRelationCreateRequest{
 		Data: ogen.SubjectRelationIn{
-			SubjectID:        subjectIdA,
-			RelatedSubjectID: subjectIdB,
+			SubjectID:        subjectUuidA,
+			RelatedSubjectID: subjectUuidB,
 		},
 	}
 	res, err := client.CreateSubjectRelation(ctx, req)

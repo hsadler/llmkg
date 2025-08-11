@@ -42,9 +42,9 @@ type Invoker interface {
 	CreateSubjectRelation(ctx context.Context, request *SubjectRelationCreateRequest) (CreateSubjectRelationRes, error)
 	// GetSubject invokes getSubject operation.
 	//
-	// Returns a single Subject by id.
+	// Returns a single Subject by uuid.
 	//
-	// GET /subjects/{subjectId}
+	// GET /subjects/{subjectUuid}
 	GetSubject(ctx context.Context, params GetSubjectParams) (GetSubjectRes, error)
 	// GetSubjectByName invokes getSubjectByName operation.
 	//
@@ -265,9 +265,9 @@ func (c *Client) sendCreateSubjectRelation(ctx context.Context, request *Subject
 
 // GetSubject invokes getSubject operation.
 //
-// Returns a single Subject by id.
+// Returns a single Subject by uuid.
 //
-// GET /subjects/{subjectId}
+// GET /subjects/{subjectUuid}
 func (c *Client) GetSubject(ctx context.Context, params GetSubjectParams) (GetSubjectRes, error) {
 	res, err := c.sendGetSubject(ctx, params)
 	return res, err
@@ -277,7 +277,7 @@ func (c *Client) sendGetSubject(ctx context.Context, params GetSubjectParams) (r
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getSubject"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/subjects/{subjectId}"),
+		semconv.HTTPRouteKey.String("/subjects/{subjectUuid}"),
 	}
 
 	// Run stopwatch.
@@ -312,14 +312,14 @@ func (c *Client) sendGetSubject(ctx context.Context, params GetSubjectParams) (r
 	var pathParts [2]string
 	pathParts[0] = "/subjects/"
 	{
-		// Encode "subjectId" parameter.
+		// Encode "subjectUuid" parameter.
 		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "subjectId",
+			Param:   "subjectUuid",
 			Style:   uri.PathStyleSimple,
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.SubjectId))
+			return e.EncodeValue(conv.UUIDToString(params.SubjectUuid))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}

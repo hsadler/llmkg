@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
 	"github.com/rs/zerolog/log"
 
 	"example-server/internal/database"
@@ -28,8 +29,13 @@ func main() {
 
 	// Setup dependencies
 	dbPool, _ := database.SetupDB()
+	neo4jDriver, _ := neo4j.NewDriverWithContext(
+		os.Getenv("NEO4J_URI"),
+		neo4j.BasicAuth(os.Getenv("NEO4J_USER"), os.Getenv("NEO4J_PASSWORD"), ""),
+	)
 	deps := dependencies.NewDependencies(
 		dbPool,
+		neo4jDriver,
 	)
 	defer deps.CleanupDependencies()
 

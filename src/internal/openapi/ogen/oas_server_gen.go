@@ -22,9 +22,9 @@ type Handler interface {
 	CreateSubjectRelation(ctx context.Context, req *SubjectRelationCreateRequest) (CreateSubjectRelationRes, error)
 	// GetSubject implements getSubject operation.
 	//
-	// Returns a single Subject by id.
+	// Returns a single Subject by uuid.
 	//
-	// GET /subjects/{subjectId}
+	// GET /subjects/{subjectUuid}
 	GetSubject(ctx context.Context, params GetSubjectParams) (GetSubjectRes, error)
 	// GetSubjectByName implements getSubjectByName operation.
 	//

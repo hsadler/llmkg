@@ -4,9 +4,6 @@ package ogen
 
 import (
 	"fmt"
-	"time"
-
-	"github.com/google/uuid"
 )
 
 func (s *ErrorResponseStatusCode) Error() string {
@@ -130,27 +127,15 @@ func (s *PingResponse) SetMessage(val string) {
 
 // Ref: #/components/schemas/Subject
 type Subject struct {
-	ID                    int64     `json:"id"`
-	UUID                  uuid.UUID `json:"uuid"`
-	CreatedAt             time.Time `json:"created_at"`
-	Name                  string    `json:"name"`
-	RelatedToSubjectIds   []int64   `json:"related_to_subject_ids"`
-	RelatedFromSubjectIds []int64   `json:"related_from_subject_ids"`
+	ID                    string   `json:"id"`
+	Name                  string   `json:"name"`
+	RelatedToSubjectIds   []string `json:"related_to_subject_ids"`
+	RelatedFromSubjectIds []string `json:"related_from_subject_ids"`
 }
 
 // GetID returns the value of ID.
-func (s *Subject) GetID() int64 {
+func (s *Subject) GetID() string {
 	return s.ID
-}
-
-// GetUUID returns the value of UUID.
-func (s *Subject) GetUUID() uuid.UUID {
-	return s.UUID
-}
-
-// GetCreatedAt returns the value of CreatedAt.
-func (s *Subject) GetCreatedAt() time.Time {
-	return s.CreatedAt
 }
 
 // GetName returns the value of Name.
@@ -159,28 +144,18 @@ func (s *Subject) GetName() string {
 }
 
 // GetRelatedToSubjectIds returns the value of RelatedToSubjectIds.
-func (s *Subject) GetRelatedToSubjectIds() []int64 {
+func (s *Subject) GetRelatedToSubjectIds() []string {
 	return s.RelatedToSubjectIds
 }
 
 // GetRelatedFromSubjectIds returns the value of RelatedFromSubjectIds.
-func (s *Subject) GetRelatedFromSubjectIds() []int64 {
+func (s *Subject) GetRelatedFromSubjectIds() []string {
 	return s.RelatedFromSubjectIds
 }
 
 // SetID sets the value of ID.
-func (s *Subject) SetID(val int64) {
+func (s *Subject) SetID(val string) {
 	s.ID = val
-}
-
-// SetUUID sets the value of UUID.
-func (s *Subject) SetUUID(val uuid.UUID) {
-	s.UUID = val
-}
-
-// SetCreatedAt sets the value of CreatedAt.
-func (s *Subject) SetCreatedAt(val time.Time) {
-	s.CreatedAt = val
 }
 
 // SetName sets the value of Name.
@@ -189,12 +164,12 @@ func (s *Subject) SetName(val string) {
 }
 
 // SetRelatedToSubjectIds sets the value of RelatedToSubjectIds.
-func (s *Subject) SetRelatedToSubjectIds(val []int64) {
+func (s *Subject) SetRelatedToSubjectIds(val []string) {
 	s.RelatedToSubjectIds = val
 }
 
 // SetRelatedFromSubjectIds sets the value of RelatedFromSubjectIds.
-func (s *Subject) SetRelatedFromSubjectIds(val []int64) {
+func (s *Subject) SetRelatedFromSubjectIds(val []string) {
 	s.RelatedFromSubjectIds = val
 }
 
@@ -265,49 +240,27 @@ func (s *SubjectIn) SetName(val string) {
 
 // Ref: #/components/schemas/SubjectRelation
 type SubjectRelation struct {
-	ID               int64     `json:"id"`
-	CreatedAt        time.Time `json:"created_at"`
-	SubjectID        int64     `json:"subject_id"`
-	RelatedSubjectID int64     `json:"related_subject_id"`
-}
-
-// GetID returns the value of ID.
-func (s *SubjectRelation) GetID() int64 {
-	return s.ID
-}
-
-// GetCreatedAt returns the value of CreatedAt.
-func (s *SubjectRelation) GetCreatedAt() time.Time {
-	return s.CreatedAt
+	SubjectID        string `json:"subject_id"`
+	RelatedSubjectID string `json:"related_subject_id"`
 }
 
 // GetSubjectID returns the value of SubjectID.
-func (s *SubjectRelation) GetSubjectID() int64 {
+func (s *SubjectRelation) GetSubjectID() string {
 	return s.SubjectID
 }
 
 // GetRelatedSubjectID returns the value of RelatedSubjectID.
-func (s *SubjectRelation) GetRelatedSubjectID() int64 {
+func (s *SubjectRelation) GetRelatedSubjectID() string {
 	return s.RelatedSubjectID
 }
 
-// SetID sets the value of ID.
-func (s *SubjectRelation) SetID(val int64) {
-	s.ID = val
-}
-
-// SetCreatedAt sets the value of CreatedAt.
-func (s *SubjectRelation) SetCreatedAt(val time.Time) {
-	s.CreatedAt = val
-}
-
 // SetSubjectID sets the value of SubjectID.
-func (s *SubjectRelation) SetSubjectID(val int64) {
+func (s *SubjectRelation) SetSubjectID(val string) {
 	s.SubjectID = val
 }
 
 // SetRelatedSubjectID sets the value of RelatedSubjectID.
-func (s *SubjectRelation) SetRelatedSubjectID(val int64) {
+func (s *SubjectRelation) SetRelatedSubjectID(val string) {
 	s.RelatedSubjectID = val
 }
 
@@ -345,27 +298,27 @@ func (*SubjectRelationCreateResponse) createSubjectRelationRes() {}
 
 // Ref: #/components/schemas/SubjectRelationIn
 type SubjectRelationIn struct {
-	SubjectID        int64 `json:"subject_id"`
-	RelatedSubjectID int64 `json:"related_subject_id"`
+	SubjectID        string `json:"subject_id"`
+	RelatedSubjectID string `json:"related_subject_id"`
 }
 
 // GetSubjectID returns the value of SubjectID.
-func (s *SubjectRelationIn) GetSubjectID() int64 {
+func (s *SubjectRelationIn) GetSubjectID() string {
 	return s.SubjectID
 }
 
 // GetRelatedSubjectID returns the value of RelatedSubjectID.
-func (s *SubjectRelationIn) GetRelatedSubjectID() int64 {
+func (s *SubjectRelationIn) GetRelatedSubjectID() string {
 	return s.RelatedSubjectID
 }
 
 // SetSubjectID sets the value of SubjectID.
-func (s *SubjectRelationIn) SetSubjectID(val int64) {
+func (s *SubjectRelationIn) SetSubjectID(val string) {
 	s.SubjectID = val
 }
 
 // SetRelatedSubjectID sets the value of RelatedSubjectID.
-func (s *SubjectRelationIn) SetRelatedSubjectID(val int64) {
+func (s *SubjectRelationIn) SetRelatedSubjectID(val string) {
 	s.RelatedSubjectID = val
 }
 

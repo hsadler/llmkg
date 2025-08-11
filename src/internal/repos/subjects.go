@@ -2,10 +2,11 @@ package repos
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 
 	"example-server/internal/database"
 	"example-server/internal/logger"
@@ -38,166 +39,69 @@ func TruncateTables(dbPool database.PgxPoolIface) error {
 
 // Subject
 
-func InsertSubject(dbPool database.PgxPoolIface, subjectIn models.SubjectIn) (*models.Subject, error) {
-	// Insert Subject
-	var subject models.Subject
-	err := dbPool.QueryRow(
-		context.Background(),
-		"INSERT INTO subject (name) VALUES ($1) RETURNING id, uuid, created_at, name",
-		subjectIn.Name,
-	).Scan(&subject.ID, &subject.UUID, &subject.CreatedAt, &subject.Name)
-	// Handle Subject insert error
-	if err != nil {
-		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) {
-			// Duplicate entry error handling
-			if pgErr.Code == "23505" {
-				return nil, ErrorSubjectExists
-			}
-		}
-		logger.LogErrorWithStacktrace(err, "Error inserting Subject")
-		return nil, ErrorCreateSubject
-	}
-	return &subject, nil
-}
-
-func FetchSubjectById(dbPool database.PgxPoolIface, subjectId int) (*models.Subject, error) {
-	// Fetch Subject by ID
-	var subject models.Subject
-	err := dbPool.QueryRow(
-		context.Background(),
-		"SELECT id, uuid, created_at, name FROM subject WHERE id = $1",
-		subjectId,
-	).Scan(&subject.ID, &subject.UUID, &subject.CreatedAt, &subject.Name)
-	// Handle Subject fetch error
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, ErrorSubjectNotFound
-		}
-		logger.LogErrorWithStacktrace(err, "Error querying Subject")
-		return nil, ErrorSubjectQuery
-	}
-	return &subject, nil
-}
-
-func FetchSubjectByName(dbPool database.PgxPoolIface, subjectName string) (*models.Subject, error) {
-	// Fetch Subject by Name
-	var subject models.Subject
-	err := dbPool.QueryRow(
-		context.Background(),
-		"SELECT id, uuid, created_at, name FROM subject WHERE name = $1",
+func CreateSubjectNode(driver neo4j.DriverWithContext, subjectName string) (*models.Subject, error) {
+	// Open a session (read/write or read-only)
+	session := driver.NewSession(context.Background(), neo4j.SessionConfig{
+		AccessMode: neo4j.AccessModeWrite,
+	})
+	defer session.Close(context.Background())
+	// Create Subject Node
+	query := fmt.Sprintf(
+		"CREATE (n:Subject {name: '%s'}) RETURN n",
 		subjectName,
-	).Scan(&subject.ID, &subject.UUID, &subject.CreatedAt, &subject.Name)
-	// Handle Subject fetch error
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, ErrorSubjectNotFound
-		}
-		logger.LogErrorWithStacktrace(err, "Error querying Subject")
-		return nil, ErrorSubjectQuery
-	}
-	return &subject, nil
-}
-
-// Subject Relation
-
-func InsertSubjectRelation(
-	dbPool database.PgxPoolIface,
-	subjectRelationIn models.SubjectRelationIn,
-) (*models.SubjectRelation, error) {
-	// Insert Subject Relation
-	var subjectRelation models.SubjectRelation
-	err := dbPool.QueryRow(
-		context.Background(),
-		`INSERT INTO subject_relation (subject_id, related_subject_id) 
-		VALUES ($1, $2) 
-		RETURNING id, created_at, subject_id, related_subject_id`,
-		subjectRelationIn.SubjectID, subjectRelationIn.RelatedSubjectID,
-	).Scan(
-		&subjectRelation.ID,
-		&subjectRelation.CreatedAt,
-		&subjectRelation.SubjectID,
-		&subjectRelation.RelatedSubjectID,
 	)
-	// Handle Subject Relation insert error
+	result, err := session.Run(context.Background(), query, nil)
 	if err != nil {
-		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) {
-			// Duplicate entry error handling
-			if pgErr.Code == "23505" {
-				return nil, ErrorSubjectRelationExists
-			}
-		}
-		logger.LogErrorWithStacktrace(err, "Error inserting Subject Relation")
-		return nil, ErrorCreateSubjectRelation
-	}
-	return &subjectRelation, nil
-}
-
-func FetchSubjectRelationsBySubjectId(
-	dbPool database.PgxPoolIface,
-	subjectId int,
-) ([]models.SubjectRelation, error) {
-	// Fetch Subject Relations rows by Subject ID
-	var subjectRelations []models.SubjectRelation
-	rows, err := dbPool.Query(
-		context.Background(),
-		"SELECT id, created_at, subject_id, related_subject_id FROM subject_relation WHERE subject_id = $1",
-		subjectId,
-	)
-	if err != nil {
-		logger.LogErrorWithStacktrace(err, "Error querying Subject Relation")
+		logger.LogErrorWithStacktrace(err, "Error creating Subject Node")
 		return nil, err
 	}
-	defer rows.Close()
-	// Scan rows into subjectRelations
-	for rows.Next() {
-		var subjectRelation models.SubjectRelation
-		err := rows.Scan(
-			&subjectRelation.ID,
-			&subjectRelation.CreatedAt,
-			&subjectRelation.SubjectID,
-			&subjectRelation.RelatedSubjectID,
-		)
-		if err != nil {
-			logger.LogErrorWithStacktrace(err, "Error scanning Subject Relation")
-			return nil, ErrorSubjectRelationQuery
+	if !result.Next(context.Background()) {
+		// Check for errors
+		if err = result.Err(); err != nil {
+			logger.LogErrorWithStacktrace(err, "Error reading result")
+			return nil, err
 		}
-		subjectRelations = append(subjectRelations, subjectRelation)
+		return nil, errors.New("No record returned")
 	}
-	return subjectRelations, nil
-}
-
-func FetchSubjectRelationsByRelatedSubjectId(
-	dbPool database.PgxPoolIface,
-	relatedSubjectId int,
-) ([]models.SubjectRelation, error) {
-	// Fetch Subject Relations rows by Related Subject ID
-	var subjectRelations []models.SubjectRelation
-	rows, err := dbPool.Query(
-		context.Background(),
-		"SELECT id, created_at, subject_id, related_subject_id FROM subject_relation WHERE related_subject_id = $1",
-		relatedSubjectId,
-	)
+	record := result.Record()
+	if record == nil {
+		return nil, errors.New("No record returned")
+	}
+	log.Debug().Interface("record", record).Msg("Subject created")
+	// Convert Neo4j record to models.Subject
+	subject, err := recordToSubject(record)
 	if err != nil {
-		logger.LogErrorWithStacktrace(err, "Error querying Subject Relation")
+		logger.LogErrorWithStacktrace(err, "Error converting record to Subject")
 		return nil, err
 	}
-	defer rows.Close()
-	// Scan rows into subjectRelations
-	for rows.Next() {
-		var subjectRelation models.SubjectRelation
-		err := rows.Scan(
-			&subjectRelation.ID,
-			&subjectRelation.CreatedAt,
-			&subjectRelation.SubjectID,
-			&subjectRelation.RelatedSubjectID,
-		)
-		if err != nil {
-			logger.LogErrorWithStacktrace(err, "Error scanning Subject Relation")
-			return nil, ErrorSubjectRelationQuery
-		}
-		subjectRelations = append(subjectRelations, subjectRelation)
+	return subject, nil
+}
+
+func recordToSubject(record *neo4j.Record) (*models.Subject, error) {
+	// Get the node from the record (assuming it's returned as 'n')
+	nodeValue, found := record.Get("n")
+	if !found {
+		return nil, errors.New("Node 'n' not found in record")
 	}
-	return subjectRelations, nil
+	// Cast to Neo4j Node
+	node, ok := nodeValue.(neo4j.Node)
+	if !ok {
+		return nil, errors.New("Value is not a Neo4j Node")
+	}
+	// Extract properties
+	properties := node.Props
+	// Get name
+	nameValue, nameExists := properties["name"]
+	if !nameExists {
+		return nil, errors.New("Name property not found")
+	}
+	name, ok := nameValue.(string)
+	if !ok {
+		return nil, errors.New("Name is not a string")
+	}
+	// Convert Neo4j Node to models.Subject
+	return &models.Subject{
+		ID:   node.ElementId,
+		Name: name,
+	}, nil
 }

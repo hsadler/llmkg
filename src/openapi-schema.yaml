@@ -65,17 +65,19 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /subjects/{subjectId}:
+  /subjects/{subjectUuid}:
     get:
       operationId: getSubject
-      description: Returns a single Subject by id.
+      description: Returns a single Subject by uuid.
       parameters:
-        - name: subjectId
+        - name: subjectUuid
           in: path
-          description: Subject ID
+          description: Subject UUID
           required: true
           schema:
-            type: integer
+            type: string
+            format: uuid
+            example: "550e8400-e29b-41d4-a716-446655440000"
       responses:
         '200':
           description: OK.
@@ -169,36 +171,26 @@ components:
       type: object
       properties:
         id:
-          type: integer
-          format: int64
-          example: 1
-        uuid:
           type: string
-          format: uuid
-          example: 550e8400-e29b-41d4-a716-446655440000
-        created_at:
-          type: string
-          format: date-time
-          example: 2021-01-01T00:00:00.000Z
+          format: string
+          example: 4:16987f9f-8033-4cd6-a7c6-94493f1f20ba:12
         name:
           type: string
           example: foo
         related_to_subject_ids:
           type: array
           items:
-            type: integer
-            format: int64
-          example: [1, 2]
+            type: string
+            format: string
+          example: ["4:16987f9f-8033-4cd6-a7c6-94493f1f20ba:12", "4:16987f9f-8033-4cd6-a7c6-94493f1f20ba:12"]
         related_from_subject_ids:
           type: array
           items:
-            type: integer
-            format: int64
-          example: [3, 4]
+            type: string
+            format: string
+          example: ["4:16987f9f-8033-4cd6-a7c6-94493f1f20ba:12", "4:16987f9f-8033-4cd6-a7c6-94493f1f20ba:12"]
       required:
         - id
-        - uuid
-        - created_at
         - name
         - related_to_subject_ids
         - related_from_subject_ids
@@ -207,13 +199,13 @@ components:
       type: object
       properties:
         subject_id:
-          type: integer
-          format: int64
-          example: 1
+          type: string
+          format: string
+          example: "4:16987f9f-8033-4cd6-a7c6-94493f1f20ba:12"
         related_subject_id:
-          type: integer
-          format: int64
-          example: 2
+          type: string
+          format: string
+          example: "4:16987f9f-8033-4cd6-a7c6-94493f1f20ba:12"
       required:
         - subject_id
         - related_subject_id
@@ -221,25 +213,15 @@ components:
     SubjectRelation:
       type: object
       properties:
-        id:
-          type: integer
-          format: int64
-          example: 1
-        created_at:
-          type: string
-          format: date-time
-          example: 2021-01-01T00:00:00.000Z
         subject_id:
-          type: integer
-          format: int64
-          example: 1
+          type: string
+          format: string
+          example: "4:16987f9f-8033-4cd6-a7c6-94493f1f20ba:12"
         related_subject_id:
-          type: integer
-          format: int64
-          example: 2
+          type: string
+          format: string
+          example: "4:16987f9f-8033-4cd6-a7c6-94493f1f20ba:12"
       required:
-        - id
-        - created_at
         - subject_id
         - related_subject_id
 
