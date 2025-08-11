@@ -4,87 +4,17 @@ package ogen
 
 import (
 	"net/http"
-	"net/url"
-
-	"github.com/go-faster/errors"
 
 	"github.com/ogen-go/ogen/conv"
 	"github.com/ogen-go/ogen/middleware"
 	"github.com/ogen-go/ogen/ogenerrors"
 	"github.com/ogen-go/ogen/uri"
-	"github.com/ogen-go/ogen/validate"
 )
-
-// GetSubjectParams is parameters of getSubject operation.
-type GetSubjectParams struct {
-	// Subject ID.
-	SubjectId string
-}
-
-func unpackGetSubjectParams(packed middleware.Parameters) (params GetSubjectParams) {
-	{
-		key := middleware.ParameterKey{
-			Name: "subjectId",
-			In:   "path",
-		}
-		params.SubjectId = packed[key].(string)
-	}
-	return params
-}
-
-func decodeGetSubjectParams(args [1]string, argsEscaped bool, r *http.Request) (params GetSubjectParams, _ error) {
-	// Decode path: subjectId.
-	if err := func() error {
-		param := args[0]
-		if argsEscaped {
-			unescaped, err := url.PathUnescape(args[0])
-			if err != nil {
-				return errors.Wrap(err, "unescape path")
-			}
-			param = unescaped
-		}
-		if len(param) > 0 {
-			d := uri.NewPathDecoder(uri.PathDecoderConfig{
-				Param:   "subjectId",
-				Value:   param,
-				Style:   uri.PathStyleSimple,
-				Explode: false,
-			})
-
-			if err := func() error {
-				val, err := d.DecodeValue()
-				if err != nil {
-					return err
-				}
-
-				c, err := conv.ToString(val)
-				if err != nil {
-					return err
-				}
-
-				params.SubjectId = c
-				return nil
-			}(); err != nil {
-				return err
-			}
-		} else {
-			return validate.ErrFieldRequired
-		}
-		return nil
-	}(); err != nil {
-		return params, &ogenerrors.DecodeParamError{
-			Name: "subjectId",
-			In:   "path",
-			Err:  err,
-		}
-	}
-	return params, nil
-}
 
 // GetSubjectByNameParams is parameters of getSubjectByName operation.
 type GetSubjectByNameParams struct {
 	// Lookup subject by name.
-	Name OptString
+	Name string
 }
 
 func unpackGetSubjectByNameParams(packed middleware.Parameters) (params GetSubjectByNameParams) {
@@ -93,9 +23,7 @@ func unpackGetSubjectByNameParams(packed middleware.Parameters) (params GetSubje
 			Name: "name",
 			In:   "query",
 		}
-		if v, ok := packed[key]; ok {
-			params.Name = v.(OptString)
-		}
+		params.Name = packed[key].(string)
 	}
 	return params
 }
@@ -112,28 +40,23 @@ func decodeGetSubjectByNameParams(args [0]string, argsEscaped bool, r *http.Requ
 
 		if err := q.HasParam(cfg); err == nil {
 			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
-				var paramsDotNameVal string
-				if err := func() error {
-					val, err := d.DecodeValue()
-					if err != nil {
-						return err
-					}
-
-					c, err := conv.ToString(val)
-					if err != nil {
-						return err
-					}
-
-					paramsDotNameVal = c
-					return nil
-				}(); err != nil {
+				val, err := d.DecodeValue()
+				if err != nil {
 					return err
 				}
-				params.Name.SetTo(paramsDotNameVal)
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.Name = c
 				return nil
 			}); err != nil {
 				return err
 			}
+		} else {
+			return err
 		}
 		return nil
 	}(); err != nil {

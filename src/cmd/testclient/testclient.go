@@ -57,8 +57,8 @@ func testSubject(ctx context.Context, client *ogen.Client) error {
 	color.New(color.FgCyan).Println("Subject created")
 	color.New(color.FgGreen).Println(createRes)
 	// Get subject
-	getRes, err := client.GetSubject(ctx, ogen.GetSubjectParams{
-		SubjectId: createRes.(*ogen.SubjectCreateResponse).Data.ID,
+	getRes, err := client.GetSubjectByName(ctx, ogen.GetSubjectByNameParams{
+		Name: createRes.(*ogen.SubjectCreateResponse).Data.Name,
 	})
 	if err != nil {
 		color.New(color.FgRed).Println(err)

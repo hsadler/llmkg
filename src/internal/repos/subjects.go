@@ -55,7 +55,7 @@ func CreateSubjectNode(driver neo4j.DriverWithContext, subjectName string) (*mod
 	defer session.Close(context.Background())
 	// Create Subject Node
 	query := fmt.Sprintf(
-		"CREATE (n:Subject {name: '%s'}) RETURN n",
+		"MERGE (n:Subject {name: '%s'}) RETURN n",
 		subjectName,
 	)
 	result, err := session.Run(context.Background(), query, nil)
@@ -87,6 +87,42 @@ func CreateSubjectNode(driver neo4j.DriverWithContext, subjectName string) (*mod
 	return subject, nil
 }
 
+func GetSubjectByName(driver neo4j.DriverWithContext, subjectName string) (*models.Subject, error) {
+	session := driver.NewSession(context.Background(), neo4j.SessionConfig{
+		AccessMode: neo4j.AccessModeRead,
+	})
+	defer session.Close(context.Background())
+	// Get Subject by Name
+	query := fmt.Sprintf("MATCH (n:Subject {name: '%s'}) RETURN n", subjectName)
+	result, err := session.Run(context.Background(), query, nil)
+	if err != nil {
+		logger.LogErrorWithStacktrace(err, "Error getting Subject by Name")
+		return nil, err
+	}
+	// Move to the next record
+	if !result.Next(context.Background()) {
+		// Check for errors
+		if err = result.Err(); err != nil {
+			logger.LogErrorWithStacktrace(err, "Error reading result")
+			return nil, err
+		}
+		return nil, errors.New("No record returned")
+	}
+	// Get the record
+	record := result.Record()
+	if record == nil {
+		return nil, errors.New("No record returned")
+	}
+	log.Debug().Interface("record", record).Msg("Subject found")
+	// Convert Neo4j record to models.Subject
+	subject, err := recordToSubject(record)
+	if err != nil {
+		logger.LogErrorWithStacktrace(err, "Error converting record to Subject")
+		return nil, err
+	}
+	return subject, nil
+}
+
 func CreateSubjectRelation(
 	driver neo4j.DriverWithContext,
 	subjectID string,
@@ -97,8 +133,11 @@ func CreateSubjectRelation(
 	})
 	defer session.Close(context.Background())
 	// Create Subject Relation
-	query := fmt.Sprintf(
-		"CREATE (s:Subject {id: '%s'}), (r:Subject {id: '%s'}) CREATE (s)-[:%s]->(r) RETURN s, r",
+	query := fmt.Sprintf(`
+		MATCH (s:Subject), (r:Subject) 
+		WHERE elementId(s) = '%s' AND elementId(r) = '%s' 
+		MERGE (s)-[:%s]->(r) 
+		RETURN s, r`,
 		subjectID,
 		relatedSubjectID,
 		RelationshipRelatedTo,

@@ -59,57 +59,6 @@ type GetSubjectByNameNotFound struct{}
 
 func (*GetSubjectByNameNotFound) getSubjectByNameRes() {}
 
-// GetSubjectNotFound is response for GetSubject operation.
-type GetSubjectNotFound struct{}
-
-func (*GetSubjectNotFound) getSubjectRes() {}
-
-// NewOptString returns new OptString with value set to v.
-func NewOptString(v string) OptString {
-	return OptString{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptString is optional string.
-type OptString struct {
-	Value string
-	Set   bool
-}
-
-// IsSet returns true if OptString was set.
-func (o OptString) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptString) Reset() {
-	var v string
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptString) SetTo(v string) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptString) Get() (v string, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptString) Or(d string) string {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
 // Ref: #/components/schemas/PingResponse
 type PingResponse struct {
 	Message string `json:"message"`
@@ -127,10 +76,8 @@ func (s *PingResponse) SetMessage(val string) {
 
 // Ref: #/components/schemas/Subject
 type Subject struct {
-	ID                    string   `json:"id"`
-	Name                  string   `json:"name"`
-	RelatedToSubjectIds   []string `json:"related_to_subject_ids"`
-	RelatedFromSubjectIds []string `json:"related_from_subject_ids"`
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
 // GetID returns the value of ID.
@@ -143,16 +90,6 @@ func (s *Subject) GetName() string {
 	return s.Name
 }
 
-// GetRelatedToSubjectIds returns the value of RelatedToSubjectIds.
-func (s *Subject) GetRelatedToSubjectIds() []string {
-	return s.RelatedToSubjectIds
-}
-
-// GetRelatedFromSubjectIds returns the value of RelatedFromSubjectIds.
-func (s *Subject) GetRelatedFromSubjectIds() []string {
-	return s.RelatedFromSubjectIds
-}
-
 // SetID sets the value of ID.
 func (s *Subject) SetID(val string) {
 	s.ID = val
@@ -161,16 +98,6 @@ func (s *Subject) SetID(val string) {
 // SetName sets the value of Name.
 func (s *Subject) SetName(val string) {
 	s.Name = val
-}
-
-// SetRelatedToSubjectIds sets the value of RelatedToSubjectIds.
-func (s *Subject) SetRelatedToSubjectIds(val []string) {
-	s.RelatedToSubjectIds = val
-}
-
-// SetRelatedFromSubjectIds sets the value of RelatedFromSubjectIds.
-func (s *Subject) SetRelatedFromSubjectIds(val []string) {
-	s.RelatedFromSubjectIds = val
 }
 
 // Ref: #/components/schemas/SubjectCreateRequest
@@ -221,7 +148,6 @@ func (s *SubjectGetResponse) SetData(val Subject) {
 }
 
 func (*SubjectGetResponse) getSubjectByNameRes() {}
-func (*SubjectGetResponse) getSubjectRes()       {}
 
 // Ref: #/components/schemas/SubjectIn
 type SubjectIn struct {

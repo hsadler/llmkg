@@ -12,7 +12,3 @@ type CreateSubjectRes interface {
 type GetSubjectByNameRes interface {
 	getSubjectByNameRes()
 }
-
-type GetSubjectRes interface {
-	getSubjectRes()
-}

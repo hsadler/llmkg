@@ -31,15 +31,6 @@ func (UnimplementedHandler) CreateSubjectRelation(ctx context.Context, req *Subj
 	return r, ht.ErrNotImplemented
 }
 
-// GetSubject implements getSubject operation.
-//
-// Returns a single Subject by id.
-//
-// GET /subjects/{subjectId}
-func (UnimplementedHandler) GetSubject(ctx context.Context, params GetSubjectParams) (r GetSubjectRes, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
 // GetSubjectByName implements getSubjectByName operation.
 //
 // Returns subject by name.

@@ -62,21 +62,24 @@ make db-migrate-up
 ### API commands:
 
 ```bash
-http POST localhost:8000/subjects data:='{"name": "Artificial Intelligence"}'
-http POST localhost:8000/subjects data:='{"name": "Deep Learning"}'
-http POST localhost:8000/subjects data:='{"name": "Computer Vision"}'
+http POST localhost:8000/subjects data:='{"name": "science"}'
+http POST localhost:8000/subjects data:='{"name": "biology"}'
+http POST localhost:8000/subjects data:='{"name": "chemistry"}'
 
-http GET localhost:8000/subjects/1
-http GET localhost:8000/subjects/2
-http GET localhost:8000/subjects/3
+http GET "localhost:8000/subjects?name=science"
+http GET "localhost:8000/subjects?name=biology"
+http GET "localhost:8000/subjects?name=chemistry"
 
-http POST localhost:8000/subject-relations data:='{"subject_id": 1, "related_subject_id": 2}'
-http POST localhost:8000/subject-relations data:='{"subject_id": 2, "related_subject_id": 3}'
-
-http GET localhost:8000/subjects/1
-http GET localhost:8000/subjects/2
-http GET localhost:8000/subjects/3
+http POST localhost:8000/subject-relations data:='{"subject_id": "4:16987f9f-8033-4cd6-a7c6-94493f1f20ba:15", "related_subject_id": "4:16987f9f-8033-4cd6-a7c6-94493f1f20ba:14"}'
 
 # Truncate tables
 http POST localhost:8000/truncate-tables
+```
+
+### Neo4j queries
+
+```bash
+MATCH (s1:Subject)
+OPTIONAL MATCH (s1)-[r:RELATED_TO]-(s2:Subject)
+RETURN s1, r, s2
 ```

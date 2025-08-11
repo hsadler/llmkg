@@ -43,7 +43,7 @@ NUM_FETCH_RELATED_SUBJECTS: int = 3
 
 @dataclass
 class Subject:
-    id: int
+    id: str
     name: str
 
     def from_json_data(json: dict) -> "Subject":
@@ -53,14 +53,12 @@ class Subject:
 
 @dataclass
 class SubjectRelation:
-    id: int
-    subject_id: int
-    related_subject_id: int
+    subject_id: str
+    related_subject_id: str
 
     def from_json_data(json: dict) -> "SubjectRelation":
         data = json["data"]
         return SubjectRelation(
-            id=data["id"],
             subject_id=data["subject_id"],
             related_subject_id=data["related_subject_id"]
         )
@@ -95,7 +93,7 @@ def find_or_create_subject(subject_name: str) -> Subject:
         return create_subject(subject_name)
 
 
-def store_subject_relation(subject_id: int, related_subject_id: int):
+def store_subject_relation(subject_id: str, related_subject_id: str):
     sleep(0.05)
     response = requests.post(f"{BACKEND_URL}/subject-relations", json={
         "data": {

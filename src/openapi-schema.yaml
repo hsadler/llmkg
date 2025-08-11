@@ -45,39 +45,10 @@ paths:
         - name: name
           in: query
           description: Lookup subject by name.
-          required: false
           schema:
             type: string
             example: "foo"
-      responses:
-        '200':
-          description: OK.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SubjectGetResponse'
-        '404':
-          description: Not found.
-        'default':
-          description: Unexpected error occurred.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /subjects/{subjectId}:
-    get:
-      operationId: getSubject
-      description: Returns a single Subject by id.
-      parameters:
-        - name: subjectId
-          in: path
-          description: Subject ID
           required: true
-          schema:
-            type: string
-            format: string
-            example: "4:16987f9f-8033-4cd6-a7c6-94493f1f20ba:12"
       responses:
         '200':
           description: OK.
@@ -177,23 +148,9 @@ components:
         name:
           type: string
           example: foo
-        related_to_subject_ids:
-          type: array
-          items:
-            type: string
-            format: string
-          example: ["4:16987f9f-8033-4cd6-a7c6-94493f1f20ba:12", "4:16987f9f-8033-4cd6-a7c6-94493f1f20ba:12"]
-        related_from_subject_ids:
-          type: array
-          items:
-            type: string
-            format: string
-          example: ["4:16987f9f-8033-4cd6-a7c6-94493f1f20ba:12", "4:16987f9f-8033-4cd6-a7c6-94493f1f20ba:12"]
       required:
         - id
         - name
-        - related_to_subject_ids
-        - related_from_subject_ids
 
     SubjectRelationIn:
       type: object

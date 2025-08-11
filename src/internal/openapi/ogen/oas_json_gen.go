@@ -221,29 +221,11 @@ func (s *Subject) encodeFields(e *jx.Encoder) {
 		e.FieldStart("name")
 		e.Str(s.Name)
 	}
-	{
-		e.FieldStart("related_to_subject_ids")
-		e.ArrStart()
-		for _, elem := range s.RelatedToSubjectIds {
-			e.Str(elem)
-		}
-		e.ArrEnd()
-	}
-	{
-		e.FieldStart("related_from_subject_ids")
-		e.ArrStart()
-		for _, elem := range s.RelatedFromSubjectIds {
-			e.Str(elem)
-		}
-		e.ArrEnd()
-	}
 }
 
-var jsonFieldsNameOfSubject = [4]string{
+var jsonFieldsNameOfSubject = [2]string{
 	0: "id",
 	1: "name",
-	2: "related_to_subject_ids",
-	3: "related_from_subject_ids",
 }
 
 // Decode decodes Subject from json.
@@ -279,46 +261,6 @@ func (s *Subject) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"name\"")
 			}
-		case "related_to_subject_ids":
-			requiredBitSet[0] |= 1 << 2
-			if err := func() error {
-				s.RelatedToSubjectIds = make([]string, 0)
-				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem string
-					v, err := d.Str()
-					elem = string(v)
-					if err != nil {
-						return err
-					}
-					s.RelatedToSubjectIds = append(s.RelatedToSubjectIds, elem)
-					return nil
-				}); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"related_to_subject_ids\"")
-			}
-		case "related_from_subject_ids":
-			requiredBitSet[0] |= 1 << 3
-			if err := func() error {
-				s.RelatedFromSubjectIds = make([]string, 0)
-				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem string
-					v, err := d.Str()
-					elem = string(v)
-					if err != nil {
-						return err
-					}
-					s.RelatedFromSubjectIds = append(s.RelatedFromSubjectIds, elem)
-					return nil
-				}); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"related_from_subject_ids\"")
-			}
 		default:
 			return d.Skip()
 		}
@@ -329,7 +271,7 @@ func (s *Subject) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00001111,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.

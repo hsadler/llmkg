@@ -44,10 +44,8 @@ func (s *LLMKGService) CreateSubject(
 	}
 	log.Debug().Interface("subjectOut", subjectOut).Msg("Subject created")
 	subject := ogen.Subject{
-		ID:                    subjectOut.ID,
-		Name:                  subjectOut.Name,
-		RelatedToSubjectIds:   []string{},
-		RelatedFromSubjectIds: []string{},
+		ID:   subjectOut.ID,
+		Name: subjectOut.Name,
 	}
 	// Compose and return response
 	return &ogen.SubjectCreateResponse{
@@ -61,43 +59,18 @@ func (s *LLMKGService) GetSubjectByName(
 ) (ogen.GetSubjectByNameRes, error) {
 	log.Info().Interface("GetSubjectByNameParams", params).Msg("Handling subject by name get request")
 	// Fetch subject
-	subjectName, ok := params.Name.Get()
-	if !ok {
-		return nil, &ogen.ErrorResponseStatusCode{
-			StatusCode: http.StatusBadRequest,
-			Response:   ogen.ErrorResponse{Error: "Name is required"},
-		}
-	}
-	// TODO: Implement Neo4j query
-	// MOCK DATA
-	subjectOut := ogen.Subject{
-		ID:                    "4:16987f9f-8033-4cd6-a7c6-94493f1f20ba:12",
-		Name:                  subjectName,
-		RelatedToSubjectIds:   []string{},
-		RelatedFromSubjectIds: []string{},
+	subjectName := params.Name
+	subjectOut, err := repos.GetSubjectByName(s.Deps.Neo4jDriver, subjectName)
+	if err != nil {
+		log.Error().Err(err).Interface("GetSubjectByNameParams", params).Msg("Error getting subject by name")
+		return nil, s.NewError(ctx, err)
 	}
 	// Compose and return response
 	return &ogen.SubjectGetResponse{
-		Data: subjectOut,
-	}, nil
-}
-
-func (s *LLMKGService) GetSubject(
-	ctx context.Context,
-	params ogen.GetSubjectParams,
-) (ogen.GetSubjectRes, error) {
-	log.Info().Interface("GetSubjectParams", params).Msg("Handling subject get request")
-	// TODO: Implement Neo4j query
-	// MOCK DATA
-	subjectOut := ogen.Subject{
-		ID:                    "4:16987f9f-8033-4cd6-a7c6-94493f1f20ba:12",
-		Name:                  "Artificial Intelligence",
-		RelatedToSubjectIds:   []string{},
-		RelatedFromSubjectIds: []string{},
-	}
-	// Compose and return response
-	return &ogen.SubjectGetResponse{
-		Data: subjectOut,
+		Data: ogen.Subject{
+			ID:   subjectOut.ID,
+			Name: subjectOut.Name,
+		},
 	}, nil
 }
 
