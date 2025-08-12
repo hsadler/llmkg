@@ -13,6 +13,8 @@ import (
 )
 
 var (
+	RelationshipRelatedTo = "RELATED_TO"
+
 	ErrorCreateSubject         = errors.New("Error creating Subject")
 	ErrorSubjectExists         = errors.New("Subject already exists")
 	ErrorSubjectNotFound       = errors.New("Subject not found")
@@ -20,7 +22,6 @@ var (
 	ErrorCreateSubjectRelation = errors.New("Error creating Subject Relation")
 	ErrorSubjectRelationExists = errors.New("Subject Relation already exists")
 	ErrorSubjectRelationQuery  = errors.New("Error querying Subject Relation")
-	RelationshipRelatedTo      = "RELATED_TO"
 )
 
 func TruncateNeo4j(driver neo4j.DriverWithContext) error {
@@ -47,7 +48,11 @@ func TruncateNeo4j(driver neo4j.DriverWithContext) error {
 
 // Subject
 
-func CreateSubjectNode(driver neo4j.DriverWithContext, subjectName string) (*models.Subject, error) {
+func CreateSubjectNode(
+	driver neo4j.DriverWithContext,
+	kgVersion string,
+	subjectName string,
+) (*models.Subject, error) {
 	// Open a session (read/write or read-only)
 	session := driver.NewSession(context.Background(), neo4j.SessionConfig{
 		AccessMode: neo4j.AccessModeWrite,
@@ -55,8 +60,9 @@ func CreateSubjectNode(driver neo4j.DriverWithContext, subjectName string) (*mod
 	defer session.Close(context.Background())
 	// Create Subject Node
 	query := fmt.Sprintf(
-		"MERGE (n:Subject {name: '%s'}) RETURN n",
+		"MERGE (n:Subject {name: '%s', kgVersion: '%s'}) RETURN n",
 		subjectName,
+		kgVersion,
 	)
 	result, err := session.Run(context.Background(), query, nil)
 	if err != nil {
@@ -87,13 +93,21 @@ func CreateSubjectNode(driver neo4j.DriverWithContext, subjectName string) (*mod
 	return subject, nil
 }
 
-func GetSubjectByName(driver neo4j.DriverWithContext, subjectName string) (*models.Subject, error) {
+func GetSubjectByName(
+	driver neo4j.DriverWithContext,
+	kgVersion string,
+	subjectName string,
+) (*models.Subject, error) {
 	session := driver.NewSession(context.Background(), neo4j.SessionConfig{
 		AccessMode: neo4j.AccessModeRead,
 	})
 	defer session.Close(context.Background())
 	// Get Subject by Name
-	query := fmt.Sprintf("MATCH (n:Subject {name: '%s'}) RETURN n", subjectName)
+	query := fmt.Sprintf(
+		"MATCH (n:Subject {name: '%s', kgVersion: '%s'}) RETURN n",
+		subjectName,
+		kgVersion,
+	)
 	result, err := session.Run(context.Background(), query, nil)
 	if err != nil {
 		logger.LogErrorWithStacktrace(err, "Error getting Subject by Name")
@@ -125,6 +139,7 @@ func GetSubjectByName(driver neo4j.DriverWithContext, subjectName string) (*mode
 
 func CreateSubjectRelation(
 	driver neo4j.DriverWithContext,
+	kgVersion string,
 	subjectID string,
 	relatedSubjectID string,
 ) (*models.SubjectRelation, error) {
@@ -135,11 +150,14 @@ func CreateSubjectRelation(
 	// Create Subject Relation
 	query := fmt.Sprintf(`
 		MATCH (s:Subject), (r:Subject) 
-		WHERE elementId(s) = '%s' AND elementId(r) = '%s' 
+		WHERE elementId(s) = '%s'
+		AND elementId(r) = '%s' AND s.kgVersion = '%s' AND r.kgVersion = '%s'
 		MERGE (s)-[:%s]->(r) 
 		RETURN s, r`,
 		subjectID,
 		relatedSubjectID,
+		kgVersion,
+		kgVersion,
 		RelationshipRelatedTo,
 	)
 	result, err := session.Run(context.Background(), query, nil)
@@ -194,10 +212,20 @@ func recordToSubject(record *neo4j.Record) (*models.Subject, error) {
 	if !ok {
 		return nil, errors.New("Name is not a string")
 	}
+	// Get kgVersion
+	kgVersionValue, kgVersionExists := properties["kgVersion"]
+	if !kgVersionExists {
+		return nil, errors.New("kgVersion property not found")
+	}
+	kgVersion, ok := kgVersionValue.(string)
+	if !ok {
+		return nil, errors.New("kgVersion is not a string")
+	}
 	// Convert Neo4j Node to models.Subject
 	return &models.Subject{
-		ID:   node.ElementId,
-		Name: name,
+		ID:        node.ElementId,
+		Name:      name,
+		KgVersion: kgVersion,
 	}, nil
 }
 

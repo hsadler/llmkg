@@ -108,6 +108,62 @@ func (s *ErrorResponse) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes KgVersion as json.
+func (s KgVersion) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes KgVersion from json.
+func (s *KgVersion) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode KgVersion to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch KgVersion(v) {
+	case KgVersion1:
+		*s = KgVersion1
+	case KgVersion2:
+		*s = KgVersion2
+	case KgVersion3:
+		*s = KgVersion3
+	case KgVersion4:
+		*s = KgVersion4
+	case KgVersion5:
+		*s = KgVersion5
+	case KgVersion6:
+		*s = KgVersion6
+	case KgVersion7:
+		*s = KgVersion7
+	case KgVersion8:
+		*s = KgVersion8
+	case KgVersion9:
+		*s = KgVersion9
+	case KgVersion10:
+		*s = KgVersion10
+	default:
+		*s = KgVersion(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s KgVersion) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *KgVersion) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode implements json.Marshaler.
 func (s *PingResponse) Encode(e *jx.Encoder) {
 	e.ObjStart()
@@ -330,10 +386,15 @@ func (s *SubjectCreateRequest) encodeFields(e *jx.Encoder) {
 		e.FieldStart("data")
 		s.Data.Encode(e)
 	}
+	{
+		e.FieldStart("kg_version")
+		s.KgVersion.Encode(e)
+	}
 }
 
-var jsonFieldsNameOfSubjectCreateRequest = [1]string{
+var jsonFieldsNameOfSubjectCreateRequest = [2]string{
 	0: "data",
+	1: "kg_version",
 }
 
 // Decode decodes SubjectCreateRequest from json.
@@ -355,6 +416,16 @@ func (s *SubjectCreateRequest) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"data\"")
 			}
+		case "kg_version":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				if err := s.KgVersion.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"kg_version\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -365,7 +436,7 @@ func (s *SubjectCreateRequest) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000001,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -821,10 +892,15 @@ func (s *SubjectRelationCreateRequest) encodeFields(e *jx.Encoder) {
 		e.FieldStart("data")
 		s.Data.Encode(e)
 	}
+	{
+		e.FieldStart("kg_version")
+		s.KgVersion.Encode(e)
+	}
 }
 
-var jsonFieldsNameOfSubjectRelationCreateRequest = [1]string{
+var jsonFieldsNameOfSubjectRelationCreateRequest = [2]string{
 	0: "data",
+	1: "kg_version",
 }
 
 // Decode decodes SubjectRelationCreateRequest from json.
@@ -846,6 +922,16 @@ func (s *SubjectRelationCreateRequest) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"data\"")
 			}
+		case "kg_version":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				if err := s.KgVersion.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"kg_version\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -856,7 +942,7 @@ func (s *SubjectRelationCreateRequest) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000001,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.

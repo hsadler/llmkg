@@ -37,7 +37,8 @@ func (s *LLMKGService) CreateSubject(
 ) (ogen.CreateSubjectRes, error) {
 	log.Info().Interface("SubjectCreateRequest", req).Msg("Handling subject create request")
 	subjectIn := req.Data
-	subjectOut, err := repos.CreateSubjectNode(s.Deps.Neo4jDriver, subjectIn.Name)
+	kgVersion := string(req.KgVersion)
+	subjectOut, err := repos.CreateSubjectNode(s.Deps.Neo4jDriver, kgVersion, subjectIn.Name)
 	if err != nil {
 		log.Error().Err(err).Interface("SubjectCreateRequest", req).Msg("Error creating subject")
 		return nil, s.NewError(ctx, err)
@@ -60,7 +61,8 @@ func (s *LLMKGService) GetSubjectByName(
 	log.Info().Interface("GetSubjectByNameParams", params).Msg("Handling subject by name get request")
 	// Fetch subject
 	subjectName := params.Name
-	subjectOut, err := repos.GetSubjectByName(s.Deps.Neo4jDriver, subjectName)
+	kgVersion := string(params.KgVersion)
+	subjectOut, err := repos.GetSubjectByName(s.Deps.Neo4jDriver, kgVersion, subjectName)
 	if err != nil {
 		log.Error().Err(err).Interface("GetSubjectByNameParams", params).Msg("Error getting subject by name")
 		return nil, s.NewError(ctx, err)
@@ -80,8 +82,10 @@ func (s *LLMKGService) CreateSubjectRelation(
 ) (ogen.CreateSubjectRelationRes, error) {
 	log.Info().Interface("SubjectRelationCreateRequest", req).Msg("Handling subject relation create request")
 	subjectRelationIn := req.Data
+	kgVersion := req.KgVersion
 	subjectRelationOut, err := repos.CreateSubjectRelation(
 		s.Deps.Neo4jDriver,
+		string(kgVersion),
 		subjectRelationIn.SubjectID,
 		subjectRelationIn.RelatedSubjectID,
 	)

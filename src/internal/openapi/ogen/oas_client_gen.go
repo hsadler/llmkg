@@ -323,6 +323,20 @@ func (c *Client) sendGetSubjectByName(ctx context.Context, params GetSubjectByNa
 			return res, errors.Wrap(err, "encode query")
 		}
 	}
+	{
+		// Encode "kgVersion" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "kgVersion",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			return e.EncodeValue(conv.StringToString(string(params.KgVersion)))
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
 	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"

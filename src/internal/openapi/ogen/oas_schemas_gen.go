@@ -4,6 +4,8 @@ package ogen
 
 import (
 	"fmt"
+
+	"github.com/go-faster/errors"
 )
 
 func (s *ErrorResponseStatusCode) Error() string {
@@ -59,6 +61,104 @@ type GetSubjectByNameNotFound struct{}
 
 func (*GetSubjectByNameNotFound) getSubjectByNameRes() {}
 
+// Ref: #/components/schemas/KgVersion
+type KgVersion string
+
+const (
+	KgVersion1  KgVersion = "1"
+	KgVersion2  KgVersion = "2"
+	KgVersion3  KgVersion = "3"
+	KgVersion4  KgVersion = "4"
+	KgVersion5  KgVersion = "5"
+	KgVersion6  KgVersion = "6"
+	KgVersion7  KgVersion = "7"
+	KgVersion8  KgVersion = "8"
+	KgVersion9  KgVersion = "9"
+	KgVersion10 KgVersion = "10"
+)
+
+// AllValues returns all KgVersion values.
+func (KgVersion) AllValues() []KgVersion {
+	return []KgVersion{
+		KgVersion1,
+		KgVersion2,
+		KgVersion3,
+		KgVersion4,
+		KgVersion5,
+		KgVersion6,
+		KgVersion7,
+		KgVersion8,
+		KgVersion9,
+		KgVersion10,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s KgVersion) MarshalText() ([]byte, error) {
+	switch s {
+	case KgVersion1:
+		return []byte(s), nil
+	case KgVersion2:
+		return []byte(s), nil
+	case KgVersion3:
+		return []byte(s), nil
+	case KgVersion4:
+		return []byte(s), nil
+	case KgVersion5:
+		return []byte(s), nil
+	case KgVersion6:
+		return []byte(s), nil
+	case KgVersion7:
+		return []byte(s), nil
+	case KgVersion8:
+		return []byte(s), nil
+	case KgVersion9:
+		return []byte(s), nil
+	case KgVersion10:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *KgVersion) UnmarshalText(data []byte) error {
+	switch KgVersion(data) {
+	case KgVersion1:
+		*s = KgVersion1
+		return nil
+	case KgVersion2:
+		*s = KgVersion2
+		return nil
+	case KgVersion3:
+		*s = KgVersion3
+		return nil
+	case KgVersion4:
+		*s = KgVersion4
+		return nil
+	case KgVersion5:
+		*s = KgVersion5
+		return nil
+	case KgVersion6:
+		*s = KgVersion6
+		return nil
+	case KgVersion7:
+		*s = KgVersion7
+		return nil
+	case KgVersion8:
+		*s = KgVersion8
+		return nil
+	case KgVersion9:
+		*s = KgVersion9
+		return nil
+	case KgVersion10:
+		*s = KgVersion10
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
 // Ref: #/components/schemas/PingResponse
 type PingResponse struct {
 	Message string `json:"message"`
@@ -102,7 +202,8 @@ func (s *Subject) SetName(val string) {
 
 // Ref: #/components/schemas/SubjectCreateRequest
 type SubjectCreateRequest struct {
-	Data SubjectIn `json:"data"`
+	Data      SubjectIn `json:"data"`
+	KgVersion KgVersion `json:"kg_version"`
 }
 
 // GetData returns the value of Data.
@@ -110,9 +211,19 @@ func (s *SubjectCreateRequest) GetData() SubjectIn {
 	return s.Data
 }
 
+// GetKgVersion returns the value of KgVersion.
+func (s *SubjectCreateRequest) GetKgVersion() KgVersion {
+	return s.KgVersion
+}
+
 // SetData sets the value of Data.
 func (s *SubjectCreateRequest) SetData(val SubjectIn) {
 	s.Data = val
+}
+
+// SetKgVersion sets the value of KgVersion.
+func (s *SubjectCreateRequest) SetKgVersion(val KgVersion) {
+	s.KgVersion = val
 }
 
 // Ref: #/components/schemas/SubjectCreateResponse
@@ -192,7 +303,8 @@ func (s *SubjectRelation) SetRelatedSubjectID(val string) {
 
 // Ref: #/components/schemas/SubjectRelationCreateRequest
 type SubjectRelationCreateRequest struct {
-	Data SubjectRelationIn `json:"data"`
+	Data      SubjectRelationIn `json:"data"`
+	KgVersion KgVersion         `json:"kg_version"`
 }
 
 // GetData returns the value of Data.
@@ -200,9 +312,19 @@ func (s *SubjectRelationCreateRequest) GetData() SubjectRelationIn {
 	return s.Data
 }
 
+// GetKgVersion returns the value of KgVersion.
+func (s *SubjectRelationCreateRequest) GetKgVersion() KgVersion {
+	return s.KgVersion
+}
+
 // SetData sets the value of Data.
 func (s *SubjectRelationCreateRequest) SetData(val SubjectRelationIn) {
 	s.Data = val
+}
+
+// SetKgVersion sets the value of KgVersion.
+func (s *SubjectRelationCreateRequest) SetKgVersion(val KgVersion) {
+	s.KgVersion = val
 }
 
 // Ref: #/components/schemas/SubjectRelationCreateResponse

@@ -7,8 +7,9 @@ type SubjectIn struct {
 }
 
 type Subject struct {
-	ID   string
-	Name string
+	ID        string
+	Name      string
+	KgVersion string
 }
 
 type SubjectRelationIn struct {

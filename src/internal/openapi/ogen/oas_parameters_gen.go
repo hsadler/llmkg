@@ -15,6 +15,8 @@ import (
 type GetSubjectByNameParams struct {
 	// Lookup subject by name.
 	Name string
+	// Knowledge Graph version.
+	KgVersion KgVersion
 }
 
 func unpackGetSubjectByNameParams(packed middleware.Parameters) (params GetSubjectByNameParams) {
@@ -24,6 +26,13 @@ func unpackGetSubjectByNameParams(packed middleware.Parameters) (params GetSubje
 			In:   "query",
 		}
 		params.Name = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "kgVersion",
+			In:   "query",
+		}
+		params.KgVersion = packed[key].(KgVersion)
 	}
 	return params
 }
@@ -62,6 +71,50 @@ func decodeGetSubjectByNameParams(args [0]string, argsEscaped bool, r *http.Requ
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "name",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: kgVersion.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "kgVersion",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.KgVersion = KgVersion(c)
+				return nil
+			}); err != nil {
+				return err
+			}
+			if err := func() error {
+				if err := params.KgVersion.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "kgVersion",
 			In:   "query",
 			Err:  err,
 		}

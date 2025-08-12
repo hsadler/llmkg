@@ -426,6 +426,10 @@ func (s *Server) handleGetSubjectByNameRequest(args [0]string, argsEscaped bool,
 					Name: "name",
 					In:   "query",
 				}: params.Name,
+				{
+					Name: "kgVersion",
+					In:   "query",
+				}: params.KgVersion,
 			},
 			Raw: r,
 		}

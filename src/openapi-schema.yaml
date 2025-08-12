@@ -49,6 +49,12 @@ paths:
             type: string
             example: "foo"
           required: true
+        - name: kgVersion
+          in: query
+          description: Knowledge Graph version.
+          schema:
+            $ref: '#/components/schemas/KgVersion'
+          required: true
       responses:
         '200':
           description: OK.
@@ -129,6 +135,20 @@ components:
   schemas:
     # Subject schemas
 
+    KgVersion:
+      type: string
+      enum:
+        - "1"
+        - "2"
+        - "3"
+        - "4"
+        - "5"
+        - "6"
+        - "7"
+        - "8"
+        - "9"
+        - "10"
+
     SubjectIn:
       type: object
       properties:
@@ -187,8 +207,11 @@ components:
       properties:
         data:
           $ref: '#/components/schemas/SubjectIn'
+        kg_version:
+          $ref: '#/components/schemas/KgVersion'
       required:
         - data
+        - kg_version
 
     SubjectCreateResponse:
       type: object
@@ -211,8 +234,11 @@ components:
       properties:
         data:
           $ref: '#/components/schemas/SubjectRelationIn'
+        kg_version:
+          $ref: '#/components/schemas/KgVersion'
       required:
         - data
+        - kg_version
 
     SubjectRelationCreateResponse:
       type: object
