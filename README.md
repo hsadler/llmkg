@@ -31,34 +31,6 @@ make down
 
 ## Development
 
-### Setup
-
-Install dependencies
-```bash
-go mod download
-```
-
-Generate API code from OpenAPI spec
-```bash
-make openapi-generate
-```
-
-### Database migrations
-
-First, have all docker-compose containers running with `make up`.
-
-Create a new migration
-```bash
-docker compose exec app migrate create -ext sql -dir ./migrations -seq <migration_name>
-```
-
-Write your "up" and "down" SQL into the new migration files.
-
-Run all migrations
-```bash
-make db-migrate-up
-```
-
 ### API commands:
 
 ```bash
@@ -83,3 +55,12 @@ MATCH (s1:Subject {kgVersion: "1"})
 OPTIONAL MATCH (s1)-[r:RELATED_TO]-(s2:Subject {kgVersion: "1"})
 RETURN s1, r, s2
 ```
+
+## TODO
+- [ ] Write cypher queries for Knowledge Graph analysis metrics
+- [ ] Create a few more knowledge graph versions
+- [ ] See if the clustering is similar for each KG version
+- [ ] Iterate on LLM prompt
+    - [ ] Have it only get progressively more specific as it goes deeper
+    - [ ] Have it return some parent and some children
+    - [ ] Fix bug where subject special characters are not handled correctly
