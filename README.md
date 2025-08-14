@@ -52,12 +52,16 @@ http POST localhost:8000/truncate-tables
 
 ```bash
 MATCH (s1:Subject {kgVersion: "1"})
-OPTIONAL MATCH (s1)-[r:RELATED_TO]-(s2:Subject {kgVersion: "1"})
+OPTIONAL MATCH (s1)-[r:RELATED_TO]-(s2:Subject)
 RETURN s1, r, s2
 ```
 
 ## TODO
-- [ ] Write cypher queries for Knowledge Graph analysis metrics
+- [ ] Write cypher queries for Knowledge Graph for gaining insights:
+    - [ ] Subjects with the most references as a related subject could be considered as one of the
+        most important or general subjects
+    - [ ] Calculate the average number of related subjects per subject
+    - [ ] Query to find subject clusters
 - [ ] Create a few more knowledge graph versions
 - [ ] See if the clustering is similar for each KG version
 - [ ] Iterate on LLM prompt

@@ -36,7 +36,7 @@ INITIAL_SUBJECTS: list[str] = [
     "law",
 ]
 
-SUBJ_NUM_FETCH_RELATED: int = 5
+SUBJ_NUM_FETCH_RELATED: int = 2
 SUBJ_CHUNK_SIZE: int = 30
 SUBJ_MAX_DEPTH_LEVEL: int = 10
 
