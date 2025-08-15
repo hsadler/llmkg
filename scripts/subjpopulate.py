@@ -6,7 +6,7 @@ from time import sleep
 from dotenv import load_dotenv
 from openai import OpenAI
 
-from llm_utils import fetch_related_subjects, SubjectToRelatedSubjects
+from llm_utils import fetch_related_subjects, SubjectToRelatedSubjects, OpenAIModel
 
 load_dotenv()
 
@@ -15,7 +15,7 @@ openai_client = OpenAI(
     api_key=os.getenv("OPENAI_API_KEY")
 )
 
-KG_VERSION: str = "2"
+KG_VERSION: str = "4"
 
 BACKEND_URL: str = "http://localhost:8000"
 INITIAL_SUBJECTS: list[str] = [
@@ -115,7 +115,7 @@ def store_subject_relation(kg_version: str, subject_id: str, related_subject_id:
 def populate_related_subjects(kg_version: str, input_subjects: list[str], level: int) -> list[str]:
     res: list[SubjectToRelatedSubjects] | None = fetch_related_subjects(
         openai_client=openai_client, 
-        model_name="gpt-4.1-nano",
+        model_name=OpenAIModel.GPT_4_1_NANO,
         input_subjects=input_subjects, 
         num_related_subjects=SUBJ_NUM_FETCH_RELATED,
     )
@@ -145,7 +145,7 @@ if __name__ == "__main__":
     current_subjects: list[str] = INITIAL_SUBJECTS
     next_subjects: list[str] = []
     visited_subjects: set[str] = set()
-    while current_level < SUBJ_MAX_DEPTH_LEVEL:
+    while current_level <= SUBJ_MAX_DEPTH_LEVEL:
         all_next_subjects = []
         for i in range(0, len(current_subjects), SUBJ_CHUNK_SIZE):
             chunk = current_subjects[i:i + SUBJ_CHUNK_SIZE]

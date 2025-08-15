@@ -37,7 +37,7 @@ Spin down the application with `make down`
 
 ## Learnings
 
-### The most general subjects tend to be the ones with the most related subjects, but this is not always the case.
+### The most general subjects tend to be the ones most referenced as a related subject, but this is not always the case.
 ```cypher
 MATCH (s1:Subject {kgVersion: "2"})
 RETURN s1.name, COUNT { (s1)-[:RELATED_TO]->(s2) } AS num_related_subjects
@@ -95,9 +95,18 @@ ORDER BY shared_connections DESC
 LIMIT 20
 ```
 
+## Potential improvements
+
+See notes [here](./NOTES/IDEAS.txt) for potential improvements.
+
 ## TODO
+
 - [ ] BUGS:
     - [ ] Subject special characters are not escaped before insertion into the database
+- [ ] Update population script to expose CLI options for:
+    - [ ] KG version
+    - [ ] Number of related subjects to fetch per subject
+    - [ ] Max Subject count
 - [ ] Create a few more knowledge graph versions
 - [ ] See if the clustering is similar for each KG version
 - [ ] Iterate on LLM prompt

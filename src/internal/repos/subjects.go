@@ -2,7 +2,6 @@ package repos
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
 	"github.com/pkg/errors"
@@ -58,13 +57,13 @@ func CreateSubjectNode(
 		AccessMode: neo4j.AccessModeWrite,
 	})
 	defer session.Close(context.Background())
-	// Create Subject Node
-	query := fmt.Sprintf(
-		"MERGE (n:Subject {name: '%s', kgVersion: '%s'}) RETURN n",
-		subjectName,
-		kgVersion,
-	)
-	result, err := session.Run(context.Background(), query, nil)
+	// Create Subject Node using parameterized query
+	query := "MERGE (n:Subject {name: $name, kgVersion: $kgVersion}) RETURN n"
+	parameters := map[string]interface{}{
+		"name":      subjectName,
+		"kgVersion": kgVersion,
+	}
+	result, err := session.Run(context.Background(), query, parameters)
 	if err != nil {
 		logger.LogErrorWithStacktrace(err, "Error creating Subject Node")
 		return nil, err
@@ -102,13 +101,13 @@ func GetSubjectByName(
 		AccessMode: neo4j.AccessModeRead,
 	})
 	defer session.Close(context.Background())
-	// Get Subject by Name
-	query := fmt.Sprintf(
-		"MATCH (n:Subject {name: '%s', kgVersion: '%s'}) RETURN n",
-		subjectName,
-		kgVersion,
-	)
-	result, err := session.Run(context.Background(), query, nil)
+	// Get Subject by Name using parameterized query
+	query := "MATCH (n:Subject {name: $name, kgVersion: $kgVersion}) RETURN n"
+	parameters := map[string]interface{}{
+		"name":      subjectName,
+		"kgVersion": kgVersion,
+	}
+	result, err := session.Run(context.Background(), query, parameters)
 	if err != nil {
 		logger.LogErrorWithStacktrace(err, "Error getting Subject by Name")
 		return nil, err
@@ -147,20 +146,19 @@ func CreateSubjectRelation(
 		AccessMode: neo4j.AccessModeWrite,
 	})
 	defer session.Close(context.Background())
-	// Create Subject Relation
-	query := fmt.Sprintf(`
+	// Create Subject Relation using parameterized query
+	query := `
 		MATCH (s:Subject), (r:Subject) 
-		WHERE elementId(s) = '%s'
-		AND elementId(r) = '%s' AND s.kgVersion = '%s' AND r.kgVersion = '%s'
-		MERGE (s)-[:%s]->(r) 
-		RETURN s, r`,
-		subjectID,
-		relatedSubjectID,
-		kgVersion,
-		kgVersion,
-		RelationshipRelatedTo,
-	)
-	result, err := session.Run(context.Background(), query, nil)
+		WHERE elementId(s) = $subjectID
+		AND elementId(r) = $relatedSubjectID AND s.kgVersion = $kgVersion AND r.kgVersion = $kgVersion
+		MERGE (s)-[:` + RelationshipRelatedTo + `]->(r)
+		RETURN s, r`
+	parameters := map[string]interface{}{
+		"subjectID":        subjectID,
+		"relatedSubjectID": relatedSubjectID,
+		"kgVersion":        kgVersion,
+	}
+	result, err := session.Run(context.Background(), query, parameters)
 	if err != nil {
 		logger.LogErrorWithStacktrace(err, "Error creating Subject Relation")
 		return nil, err
