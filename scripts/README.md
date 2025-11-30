@@ -1,27 +1,30 @@
 # Streamlit POC clients for the LLMKG project
 
 ## Requirements
-
-- python 3.12+
+- uv
 
 ## Getting started
 
-### 1. Create a virtual environment
-```bash
-uv venv
-```
-
-### 2. Set up environment variables
+### 1. Set up environment variables
 Copy the example environment file and add your OpenAI API key:
 ```bash
 cp .env.example .env
 ```
-
 Then add your OpenAI API key to the `.env` file.
+
+### 2. Create a virtual environment
+```bash
+uv venv
+```
 
 ### 3. Install dependencies
 ```bash
 uv sync
+```
+
+Optional: Install additional dependencies for the scripts
+```bash
+uv add fire
 ```
 
 ## Scripts

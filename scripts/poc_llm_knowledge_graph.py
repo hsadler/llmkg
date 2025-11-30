@@ -1,4 +1,3 @@
-import json
 import os
 
 import streamlit as st
@@ -6,7 +5,7 @@ import graphviz
 from openai import OpenAI
 from dotenv import load_dotenv
 
-from llm_utils import fetch_related_subjects
+from llm_utils import OpenAIModel, SubjectToRelatedSubjects, fetch_related_subjects
 
 load_dotenv()
 
@@ -33,26 +32,38 @@ def construct_knowlege_graph(
     input_subject: str, 
     subject_breadth: int, 
     subject_depth: int,
-) -> dict[str, list[str]]:
-    def explore_subject_nodes(subjects: list[str], breadth: int) -> dict[str, list[str]]:
-        related_subjects_lookup: dict[str, list[str]] | None = fetch_related_subjects(openai_client, subjects, breadth)
-        if related_subjects_lookup is None:
+) -> dict[str, dict[str, bool]]:
+    def explore_subject_nodes(subjects: list[str], breadth: int) -> list[SubjectToRelatedSubjects]:
+        related_subjects: list[SubjectToRelatedSubjects] | None = fetch_related_subjects(
+            openai_client=openai_client,
+            model_name=OpenAIModel.GPT_4_1_NANO.value,
+            input_subjects=subjects,
+            num_related_subjects=breadth,
+        )
+        if related_subjects is None:
             raise Exception("Failed to fetch related subjects")
-        return related_subjects_lookup
+        return related_subjects
     knowledge_graph: dict[str, dict[str, bool]] = {}
     latest_recieved_subjects: set[str] = set()
     for i in range(subject_depth): 
         input_subjects: list[str] = [input_subject] if i == 0 else list(latest_recieved_subjects)
-        related_subjects_lookup: dict[str, list[str]] = explore_subject_nodes(input_subjects, subject_breadth)
+        try:
+            related_subjects: list[SubjectToRelatedSubjects] = explore_subject_nodes(input_subjects, subject_breadth)
+            print(f"Related subjects lookup: {related_subjects}")
+        except Exception as e:
+            st.error(f"Error exploring subject nodes: {e}")
+            continue
         latest_recieved_subjects = set()
-        for subject, related_subjects in related_subjects_lookup.items():
-            subject = subject.lower()
-            related_subjects = [related_subject.lower() for related_subject in related_subjects]
-            latest_recieved_subjects.update(related_subjects)
-            if subject not in knowledge_graph:
-                knowledge_graph[subject] = {}
-            for related_subject in related_subjects:
-                knowledge_graph[subject][related_subject] = True
+        for subject_to_related_subjects in related_subjects:
+            subject_name = subject_to_related_subjects.subject_name.lower()
+            related_subject_names = [
+                related_subject.lower() for related_subject in subject_to_related_subjects.related_subject_names
+            ]
+            latest_recieved_subjects.update(related_subject_names)
+            if subject_name not in knowledge_graph:
+                knowledge_graph[subject_name] = {}
+            for related_subject_name in related_subject_names:
+                knowledge_graph[subject_name][related_subject_name] = True
     return knowledge_graph        
 
 # display knowledge graph if initial subject is provided
@@ -65,6 +76,7 @@ if initial_subject:
     st.subheader("Knowledge Graph Data Structure")
     st.json(knowledge_graph)
 
+    st.subheader("Knowledge Graph Visualisation")
     graph = graphviz.Digraph(
         name="knowledge_graph",
         format="png", 
