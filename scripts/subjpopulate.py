@@ -113,19 +113,23 @@ def store_subject_relation(kg_version: str, subject_id: str, related_subject_id:
 
 
 def populate_related_subjects(kg_version: str, input_subjects: list[str], level: int) -> list[str]:
-    res: list[SubjectToRelatedSubjects] | None = fetch_related_subjects(
-        openai_client=openai_client, 
-        model_name=OpenAIModel.GPT_4_1_NANO,
-        input_subjects=input_subjects, 
-        num_related_subjects=SUBJ_NUM_FETCH_RELATED,
-    )
+    try:
+        related_subjects: list[SubjectToRelatedSubjects] | None = fetch_related_subjects(
+            openai_client=openai_client,
+            model_name=OpenAIModel.GPT_4_1_NANO.value,
+            input_subjects=input_subjects,
+            num_related_subjects=SUBJ_NUM_FETCH_RELATED,
+        )
+    except Exception as e:
+        print(f"Error fetching related subjects: {e}")
+        return []
     print("-" * 100)
     print(f"Level {level}")
     visited_subjects: set[str] = set()
-    subject_to_related_subjects: SubjectToRelatedSubjects
-    for subject_to_related_subjects in res:
-        subject_name: str = subject_to_related_subjects.subject_name
-        related_subject_names: list[str] = subject_to_related_subjects.related_subject_names
+    rs: SubjectToRelatedSubjects
+    for rs in related_subjects:
+        subject_name: str = rs.subject_name
+        related_subject_names: list[str] = rs.related_subject_names
         print(f"Subject: {subject_name}")
         print(f"Related Subjects: {related_subject_names}")
         print("Storing to backend...")
@@ -150,7 +154,7 @@ if __name__ == "__main__":
         for i in range(0, len(current_subjects), SUBJ_CHUNK_SIZE):
             chunk = current_subjects[i:i + SUBJ_CHUNK_SIZE]
             print(f"Processing level {current_level} chunk {i//SUBJ_CHUNK_SIZE + 1}: {chunk}")
-            chunk_next_subjects = populate_related_subjects(KG_VERSION, chunk, current_level)
+            chunk_next_subjects: list[str] = populate_related_subjects(KG_VERSION, chunk, current_level)
             all_next_subjects.extend(chunk_next_subjects)
         next_subjects = all_next_subjects
         visited_subjects.update(next_subjects)
